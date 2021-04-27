@@ -18,9 +18,12 @@ import java.util.Date;
 public class Credentials {
     public Credentials() {
     }
-
+    public Credentials(String email, String password) {
+        this.email = email;
+        this.password=password;
+    }
     @Id
     private Integer account_id;
     private String email;
-    private Integer password;
+    private String password;
 }
