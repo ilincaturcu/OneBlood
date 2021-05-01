@@ -5,6 +5,7 @@ import ac.OneBlood.Util.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,9 +40,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         return super.authenticationManagerBean();
     }
 
+    //TODO: de documentat ce face fiecare metoda si de persis doar clientului meu
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.cors().disable();
         http.csrf().disable().authorizeRequests().antMatchers("/authenticate")
+                .permitAll().antMatchers(HttpMethod.OPTIONS, "/**")
                 .permitAll().anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

@@ -20,7 +20,8 @@ public class DonationForm {
     }
 
     @Id
-    private Integer donor_code;
+    private Integer donation_form_id;
+    private String donor_code;
     private Integer id_analize_pre_donare;
     private Integer id_analize_post_donare;
     private Timestamp created_at;

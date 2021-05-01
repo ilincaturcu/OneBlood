@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -21,8 +22,8 @@ public class Pacient {
     }
 
     @Id
-    private Integer CNP;
-    private Integer fk_donor_code;
+    private BigInteger CNP;
+    private String fk_donor_code;
     private Integer fk_account_id;
     private Integer self_exclusion_form_id;
     private Timestamp created_at;

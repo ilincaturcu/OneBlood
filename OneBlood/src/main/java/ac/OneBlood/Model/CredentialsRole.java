@@ -21,6 +21,7 @@ public class CredentialsRole {
 
     @Id
     private Integer fk_account_id;
+
     private Integer fk_id_role;
 
 }

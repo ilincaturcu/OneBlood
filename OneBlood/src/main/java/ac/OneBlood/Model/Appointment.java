@@ -21,7 +21,7 @@ public class Appointment {
 
     @Id
     private Integer appointment_id;
-    private Integer fk_donor_code;
+    private String fk_donor_code;
     private Integer fk_doctor_code;
     private Date appointment_date;
 }
