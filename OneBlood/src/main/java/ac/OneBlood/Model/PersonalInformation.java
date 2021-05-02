@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigInteger;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -14,17 +15,17 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table(name = "peronal_information")
+@Table(name = "personal_information")
 public class PersonalInformation {
     public PersonalInformation() {
     }
 
     @Id
-    private Integer CNP;
+    private BigInteger CNP;
     private String name;
     private String surname;
-    private String mothersName;
-    private String fathersName;
+    private String mothers_name;
+    private String fathers_name;
     private Date birthdate;
     private String identity_card_series;
     private Integer identity_card_number;

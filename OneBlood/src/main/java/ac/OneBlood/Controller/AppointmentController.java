@@ -7,10 +7,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -38,5 +35,18 @@ public class AppointmentController {
                 linkTo(methodOn(AppointmentController.class).listAllAppointments()).withRel("appointments"),
                 linkTo(methodOn(DoctorController.class).listDoctorById(appointment.getFk_doctor_code())).withRel("DoctorAppointment")),
                 HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/appointments",method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<?> addNewAppointment(@RequestBody Appointment appointment) {
+        //verifici daca exista, daca nu exista il creezi => 201 created
+        //daca exista ii faci update 200ok
+        try{appointmentService.getAppointmentById(appointment.getAppointment_id());}
+        catch (Exception e){
+            appointmentService.save(appointment);
+            return new ResponseEntity<>(appointment, HttpStatus.CREATED);
+        }
+        appointmentService.save(appointment);
+        return new ResponseEntity<>(appointment, HttpStatus.OK);
     }
 }

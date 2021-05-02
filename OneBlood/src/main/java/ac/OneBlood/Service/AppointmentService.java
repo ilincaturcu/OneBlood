@@ -28,4 +28,7 @@ public class AppointmentService {
             throw new EmptyResultDataAccessException(id);
     }
 
+    public void save(Appointment appointment) {
+        appointmentRepository.saveAndFlush(appointment);
+    }
 }
