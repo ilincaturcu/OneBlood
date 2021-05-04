@@ -1,6 +1,7 @@
 package ac.OneBlood.Service;
 
 import ac.OneBlood.Model.DonationForm;
+import ac.OneBlood.Model.Pacient;
 import ac.OneBlood.Model.PersonalInformation;
 import ac.OneBlood.Repository.PersonalInformationRepository;
 import javassist.NotFoundException;
@@ -28,5 +29,9 @@ public class PersonalInformationService {
             return personalInformationRepository.findById(CNP).get();
         else
             throw new Exception("CNP not found");
+    }
+
+    public void save(PersonalInformation personalInformation) {
+        personalInformationRepository.save(personalInformation);
     }
 }

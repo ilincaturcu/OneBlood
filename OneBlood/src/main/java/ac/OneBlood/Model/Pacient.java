@@ -4,12 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @AllArgsConstructor
 @Builder
@@ -20,8 +18,9 @@ import java.util.Date;
 public class Pacient {
     public Pacient() {
     }
-
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Integer pacient_id;
     private BigInteger CNP;
     private String fk_donor_code;
     private Integer fk_account_id;

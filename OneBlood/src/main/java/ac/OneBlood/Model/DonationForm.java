@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @AllArgsConstructor
@@ -20,6 +19,7 @@ public class DonationForm {
     }
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer donation_form_id;
     private String donor_code;
     private Integer id_analize_pre_donare;

@@ -1,5 +1,6 @@
 package ac.OneBlood.Controller;
 
+import ac.OneBlood.Model.Appointment;
 import ac.OneBlood.Model.AuthRequest;
 import ac.OneBlood.Model.Credentials;
 import ac.OneBlood.Repository.CredentialsRepository;
@@ -44,7 +45,7 @@ public class CredentialsController {
                 .build());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-    @PostMapping(value="/authenticate", produces={"application/json","application/xml"}, consumes="application/json")
+    @PostMapping(value="/authenticate")
     public ResponseEntity<?> generateToken(@RequestBody AuthRequest authRequest) throws Exception {
         try {
             authenticationManager.authenticate(
@@ -65,5 +66,18 @@ public class CredentialsController {
         Credentials credentials = credentialsService.get(id);
         System.out.println(credentials.toString());
         return  new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/credentials",method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<?> addNewAppointment(@RequestBody Credentials credentials) {
+        //verifici daca exista, daca nu exista il creezi => 201 created
+        //daca exista ii faci update 200ok
+        try{credentialsService.get(credentials.getAccount_id());}
+        catch (Exception e){
+            credentialsService.save(credentials);
+            return new ResponseEntity<>(credentials, HttpStatus.CREATED);
+        }
+        credentialsService.save(credentials);
+        return new ResponseEntity<>(credentials, HttpStatus.OK);
     }
 }

@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -23,6 +22,7 @@ public class Credentials {
         this.password=password;
     }
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer account_id;
     private String email;
     private String password;

@@ -1,6 +1,7 @@
 package ac.OneBlood.Service;
 
 import ac.OneBlood.Model.Doctor;
+import ac.OneBlood.Model.Pacient;
 import ac.OneBlood.Repository.DoctorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -24,6 +25,11 @@ public class DoctorService {
             return doctorRepository.findById(id).get();
         else
             throw new EmptyResultDataAccessException(id);
+    }
+
+
+    public void save(Doctor doctor) {
+        doctorRepository.save(doctor);
     }
 
     public void delete(Integer id) {

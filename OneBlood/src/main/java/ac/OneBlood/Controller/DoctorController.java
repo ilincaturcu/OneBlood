@@ -1,5 +1,6 @@
 package ac.OneBlood.Controller;
 
+import ac.OneBlood.Model.Appointment;
 import ac.OneBlood.Model.Doctor;
 import ac.OneBlood.Repository.DoctorRepository;
 import ac.OneBlood.Service.DoctorService;
@@ -8,10 +9,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -35,5 +33,19 @@ public class DoctorController {
         return new ResponseEntity<> (EntityModel.of(doctor,
                 linkTo(methodOn(DoctorController.class).listDoctorById(id)).withSelfRel(),
                 linkTo(methodOn(DoctorController.class).listDoctors()).withRel("doctors")),  HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/api/doctor/{doctor_code}",method = RequestMethod.PUT, headers = "Accept=application/json")
+    public ResponseEntity<?> addDoctor(@RequestBody Doctor doctor) {
+        //verifici daca exista, daca nu exista il creezi => 201 created
+        //daca exista ii faci update 200ok
+        try{doctorService.getDoctorById(doctor.getDoctor_code());}
+        catch (Exception e){
+            doctorService.save(doctor);
+            return new ResponseEntity<>(doctor, HttpStatus.CREATED);
+        }
+        doctorService.save(doctor);
+        return new ResponseEntity<>(doctor, HttpStatus.OK);
     }
 }

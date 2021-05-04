@@ -1,5 +1,6 @@
 package ac.OneBlood.Service;
 
+import ac.OneBlood.Model.Credentials;
 import ac.OneBlood.Model.Doctor;
 import ac.OneBlood.Model.DonationForm;
 import ac.OneBlood.Repository.DoctorRepository;
@@ -27,6 +28,17 @@ public class DonationFormService {
             return donationFormRepository.findById(id).get();
         else
             throw new EmptyResultDataAccessException(id);
+    }
+
+    public DonationForm getDonationFormByDonorCode(String donor_code) throws NotFoundException {
+        if(donationFormRepository.findByDonorCode(donor_code) != null)
+            return donationFormRepository.findByDonorCode(donor_code);
+        else
+            throw new NotFoundException(donor_code);
+    }
+
+    public void save(DonationForm donationForm) {
+        donationFormRepository.save(donationForm);
     }
 
     public void delete(Integer id) {
