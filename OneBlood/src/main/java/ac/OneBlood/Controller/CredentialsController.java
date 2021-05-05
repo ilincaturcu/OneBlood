@@ -1,23 +1,15 @@
 package ac.OneBlood.Controller;
 
-import ac.OneBlood.Model.Appointment;
 import ac.OneBlood.Model.AuthRequest;
 import ac.OneBlood.Model.Credentials;
-import ac.OneBlood.Repository.CredentialsRepository;
 import ac.OneBlood.Service.CredentialsService;
 import ac.OneBlood.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
@@ -31,12 +23,12 @@ public class CredentialsController {
     private AuthenticationManager authenticationManager;
 
     @GetMapping("/")
-    public String welcome(){
+    public String welcome() {
         return "Welcome";
     }
 
     @PostMapping("/api/cont")
-    public ResponseEntity<?> addCont(@RequestBody Credentials credentials){
+    public ResponseEntity<?> addCont(@RequestBody Credentials credentials) {
         //pentru inlocuirea completa (update) 204 no content
         //pentru crearea unei resurse noi 201 created
         credentialsService.save(Credentials.builder()
@@ -45,7 +37,8 @@ public class CredentialsController {
                 .build());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-    @PostMapping(value="/authenticate")
+
+    @PostMapping(value = "/authenticate")
     public ResponseEntity<?> generateToken(@RequestBody AuthRequest authRequest) throws Exception {
         try {
             authenticationManager.authenticate(
@@ -57,27 +50,27 @@ public class CredentialsController {
             throw new Exception(ex.getMessage());
         }
         String jwt = jwtUtil.generateToken(authRequest.getUserName());
-        System.out.println(jwt);
-        return new ResponseEntity<String>( jwt, HttpStatus.OK);
+        return new ResponseEntity<String>(jwt, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/cont/{id}", method =  RequestMethod.GET)
-    public ResponseEntity<?> listContById(@PathVariable Integer id){
+    @RequestMapping(value = "/api/cont/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> listContById(@PathVariable Integer id) {
         Credentials credentials = credentialsService.get(id);
         System.out.println(credentials.toString());
-        return  new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/credentials",method = RequestMethod.POST, headers = "Accept=application/json")
+    @RequestMapping(value = "/api/credentials", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<?> addNewAppointment(@RequestBody Credentials credentials) {
         //verifici daca exista, daca nu exista il creezi => 201 created
         //daca exista ii faci update 200ok
-        try{credentialsService.get(credentials.getAccount_id());}
-        catch (Exception e){
+        try {
+            credentialsService.get(credentials.getAccount_id());
+        } catch (Exception e) {
             credentialsService.save(credentials);
-            return new ResponseEntity<>(credentials, HttpStatus.CREATED);
+            return new ResponseEntity<>(credentials.getAccount_id(), HttpStatus.CREATED);
         }
         credentialsService.save(credentials);
-        return new ResponseEntity<>(credentials, HttpStatus.OK);
+        return new ResponseEntity<>(credentials.getAccount_id(), HttpStatus.OK);
     }
 }

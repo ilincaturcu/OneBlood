@@ -1,8 +1,6 @@
 package ac.OneBlood.Controller;
 
-import ac.OneBlood.Model.Appointment;
 import ac.OneBlood.Model.Doctor;
-import ac.OneBlood.Repository.DoctorRepository;
 import ac.OneBlood.Service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -20,28 +18,31 @@ public class DoctorController {
     @Autowired
     DoctorService doctorService;
 
-
     @RequestMapping(value = "/api/doctors", method = RequestMethod.GET)
-    public ResponseEntity<?> listDoctors() { return new ResponseEntity<> ( doctorService.listAllDoctors(), HttpStatus.OK); }
-
+    public ResponseEntity<?> listDoctors() {
+        return new ResponseEntity<>(doctorService.listAllDoctors(), HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/api/doctor/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listDoctorById(@PathVariable Integer id) {
         Doctor doctor;
-        try { doctor = doctorService.getDoctorById(id); }
-        catch(EmptyResultDataAccessException e){ return new ResponseEntity<> ( HttpStatus.BAD_REQUEST); }
-        return new ResponseEntity<> (EntityModel.of(doctor,
+        try {
+            doctor = doctorService.getDoctorById(id);
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(EntityModel.of(doctor,
                 linkTo(methodOn(DoctorController.class).listDoctorById(id)).withSelfRel(),
-                linkTo(methodOn(DoctorController.class).listDoctors()).withRel("doctors")),  HttpStatus.OK);
+                linkTo(methodOn(DoctorController.class).listDoctors()).withRel("doctors")), HttpStatus.OK);
     }
 
-
-    @RequestMapping(value = "/api/doctor/{doctor_code}",method = RequestMethod.PUT, headers = "Accept=application/json")
+    @RequestMapping(value = "/api/doctor/{doctor_code}", method = RequestMethod.PUT, headers = "Accept=application/json")
     public ResponseEntity<?> addDoctor(@RequestBody Doctor doctor) {
         //verifici daca exista, daca nu exista il creezi => 201 created
         //daca exista ii faci update 200ok
-        try{doctorService.getDoctorById(doctor.getDoctor_code());}
-        catch (Exception e){
+        try {
+            doctorService.getDoctorById(doctor.getDoctor_code());
+        } catch (Exception e) {
             doctorService.save(doctor);
             return new ResponseEntity<>(doctor, HttpStatus.CREATED);
         }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DonationFormRepository extends JpaRepository<DonationForm, Integer> {
-    @Query(value = "SELECT * FROM donation_form WHERE donor_code = :donor_code", nativeQuery = true)
+    @Query(value = "SELECT * FROM donation_form WHERE fk_donor_code = :donor_code", nativeQuery = true)
     DonationForm findByDonorCode(String donor_code);
 }

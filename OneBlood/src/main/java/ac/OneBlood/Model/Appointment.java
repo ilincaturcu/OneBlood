@@ -14,16 +14,25 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "appointment")
 public class Appointment {
     public Appointment() {
     }
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer appointment_id;
     private String fk_donor_code;
     private Integer fk_doctor_code;
     private Date appointment_date;
+    private Integer status;
 }
+
+/*enum Status {
+    PROGRESS,
+    PENDING,
+    CANCELLED,
+    COMPLETED
+}*/
+

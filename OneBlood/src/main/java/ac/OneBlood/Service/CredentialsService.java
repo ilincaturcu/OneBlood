@@ -19,12 +19,13 @@ public class CredentialsService {
     public List<Credentials> listAllCredentialsData() {
         return credentialsRepository.findAll();
     }
+
     public void save(Credentials credentials) {
         credentialsRepository.save(credentials);
     }
 
-    public Credentials get(Integer id){
-        if(credentialsRepository.findById(id).isPresent())
+    public Credentials get(Integer id) {
+        if (credentialsRepository.findById(id).isPresent())
             return credentialsRepository.findById(id).get();
         else
             throw new EmptyResultDataAccessException(id);

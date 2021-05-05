@@ -17,8 +17,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Autowired
     CredentialsRoleService credentialsRoleService;
-    public CustomUserDetails(Credentials user){
-       this.user = user;
+
+    public CustomUserDetails(Credentials user) {
+        this.user = user;
     }
 
     @Override

@@ -22,7 +22,7 @@ public class Pacient {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer pacient_id;
     private BigInteger CNP;
-    private String fk_donor_code;
+    private String donor_code;
     private Integer fk_account_id;
     private Integer self_exclusion_form_id;
     private Timestamp created_at;

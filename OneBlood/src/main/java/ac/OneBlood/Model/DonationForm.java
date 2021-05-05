@@ -19,9 +19,9 @@ public class DonationForm {
     }
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer donation_form_id;
-    private String donor_code;
+    private String fk_donor_code;
     private Integer id_analize_pre_donare;
     private Integer id_analize_post_donare;
     private Timestamp created_at;

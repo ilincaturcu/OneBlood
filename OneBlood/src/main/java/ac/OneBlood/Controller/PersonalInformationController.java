@@ -1,9 +1,7 @@
 package ac.OneBlood.Controller;
 
-import ac.OneBlood.Model.DonationForm;
 import ac.OneBlood.Model.PersonalInformation;
 import ac.OneBlood.Service.PersonalInformationService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -24,9 +22,12 @@ public class PersonalInformationController {
     @RequestMapping(value = "/api/personalInformation/{CNP}", method = RequestMethod.GET)
     public ResponseEntity<?> listPersonalInfoByCNP(@PathVariable BigInteger CNP) throws Exception {
         PersonalInformation personalInformation;
-        try { personalInformation = personalInformationService.getPersonalInformationByCNP(CNP);}
-        catch(Exception e){ return new ResponseEntity<> ( HttpStatus.BAD_REQUEST); }
-        return new ResponseEntity<> (EntityModel.of(personalInformation,
+        try {
+            personalInformation = personalInformationService.getPersonalInformationByCNP(CNP);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(EntityModel.of(personalInformation,
                 linkTo(methodOn(PersonalInformationController.class).listPersonalInfoByCNP(CNP)).withSelfRel()), HttpStatus.OK);
     }
 

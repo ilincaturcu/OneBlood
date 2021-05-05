@@ -1,11 +1,9 @@
 package ac.OneBlood.Controller;
 
-import ac.OneBlood.Model.Doctor;
 import ac.OneBlood.Model.DonationForm;
 import ac.OneBlood.Service.DonationFormService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ public class DonationFormController {
         }
         return new ResponseEntity<>(EntityModel.of(donationForm,
                 linkTo(methodOn(DonationFormController.class).listDonationFormById(id)).withSelfRel(),
-                linkTo(methodOn(PacientController.class).listPacientByDonorCode(donationForm.getDonor_code())).withRel("pacientByDonorCode")), HttpStatus.OK);
+                linkTo(methodOn(PacientController.class).listPacientByDonorCode(donationForm.getFk_donor_code())).withRel("pacientByDonorCode")), HttpStatus.OK);
     }
 
     //crearea unei resurse noi sau inlocuirea completa
@@ -42,7 +40,7 @@ public class DonationFormController {
             donationFormService.getDonationFormByDonorCode(donor_code);
         } catch (NotFoundException e) {
             donationFormService.save(DonationForm.builder()
-                    .donor_code(donor_code)
+                    .fk_donor_code(donor_code)
                     .id_analize_post_donare(donationForm.getId_analize_post_donare())
                     .id_analize_pre_donare(donationForm.getId_analize_pre_donare())
                     .created_at(donationForm.getCreated_at())
@@ -50,7 +48,7 @@ public class DonationFormController {
             return new ResponseEntity<>(donationFormService.getDonationFormByDonorCode(donor_code), HttpStatus.CREATED);
         }
         donationFormService.save(DonationForm.builder()
-                .donor_code(donor_code)
+                .fk_donor_code(donor_code)
                 .id_analize_post_donare(donationForm.getId_analize_post_donare())
                 .id_analize_pre_donare(donationForm.getId_analize_pre_donare())
                 .created_at(donationForm.getCreated_at())

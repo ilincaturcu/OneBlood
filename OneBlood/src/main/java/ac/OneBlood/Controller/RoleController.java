@@ -21,7 +21,7 @@ public class RoleController {
     @RequestMapping(value = "/api/roles", method = RequestMethod.GET)
     public ResponseEntity<?> listRoles() {
         List<Role> roles = roleService.listAllRoles();
-        return new ResponseEntity<> ( roles.stream().map(Role::getRole_name).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(roles.stream().map(Role::getRole_name).collect(Collectors.toList()), HttpStatus.OK);
     }
 
 }

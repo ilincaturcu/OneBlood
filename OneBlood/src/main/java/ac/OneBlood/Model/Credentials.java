@@ -17,12 +17,14 @@ import java.util.Date;
 public class Credentials {
     public Credentials() {
     }
+
     public Credentials(String email, String password) {
         this.email = email;
-        this.password=password;
+        this.password = password;
     }
+
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer account_id;
     private String email;
     private String password;
