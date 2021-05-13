@@ -1,13 +1,17 @@
 package ac.OneBlood.Service;
 
 import ac.OneBlood.Model.*;
+import net.minidev.json.JSONObject;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
 
 
 @Service
@@ -66,5 +70,31 @@ public class Aggregator {
 //                System.out.println(resultCarte.getStatusCode());
 //                System.out.println(resultCarte.getBody().toString());
         }
+    }
+
+
+    public String postPredonareData(RestTemplate restTemplate, JSONObject predonareData) {
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> predonareId = null;
+        HttpEntity<Object> entity = new HttpEntity<>(predonareData, headers);
+        try {
+         predonareId = restTemplate.postForEntity("http://localhost:7070/api/predonare", entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
+            System.out.println("a intrat in catch :(");
+        }
+        return predonareId.getBody();
+    }
+
+
+    public String postPostdonareData(RestTemplate restTemplate, JSONObject postdonareData) {
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> postdonareId = null;
+        HttpEntity<Object> entity = new HttpEntity<>(postdonareData, headers);
+        try {
+            postdonareId = restTemplate.postForEntity("http://localhost:7070/api/postdonare", entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
+            System.out.println("a intrat in catch :(");
+        }
+        return postdonareId.getBody();
     }
 }

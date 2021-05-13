@@ -3,6 +3,7 @@ package ac.OneBlood.Controller;
 import ac.OneBlood.Model.DoctorRegister;
 import ac.OneBlood.Model.PacientRegister;
 import ac.OneBlood.Service.Aggregator;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +45,27 @@ public class AggregatorController {
             return new ResponseEntity<>(e.getMessage() + e.getCause().getLocalizedMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(pacientRegister, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/agreggator/predonare")
+    public ResponseEntity<?> addPredonareData(@Valid @RequestBody JSONObject jsonObject, BindingResult bindingResult, HttpServletRequest request) throws Exception {
+        String predonareId;
+        try {
+         predonareId = aggregator.postPredonareData(restTemplate, jsonObject);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage() + e.getCause().getLocalizedMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(predonareId, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/agreggator/postdonare")
+    public ResponseEntity<?> addPostdonareData(@Valid @RequestBody JSONObject jsonObject, BindingResult bindingResult, HttpServletRequest request) throws Exception {
+        String postdonareId;
+        try {
+            postdonareId = aggregator.postPostdonareData(restTemplate, jsonObject);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage() + e.getCause().getLocalizedMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(postdonareId, HttpStatus.CREATED);
     }
 }
