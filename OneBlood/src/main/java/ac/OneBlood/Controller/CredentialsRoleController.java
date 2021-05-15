@@ -19,8 +19,7 @@ public class CredentialsRoleController {
     @RequestMapping(value = "/api/credentialsrole/roleID/{userId}", method = RequestMethod.GET)
     public ResponseEntity<?> listCredentialsRoleByUserId(@PathVariable Integer userId) {
         CredentialsRole credentialsRole = credentialsRoleService.getCredentialsRoleByUserId(userId);
-        return new ResponseEntity<>(EntityModel.of(credentialsRole,
-                linkTo(methodOn(CredentialsRoleController.class).listCredentialsRoleByUserId(userId)).withSelfRel()), HttpStatus.OK);
+        return new ResponseEntity<>(credentialsRole.getFk_id_role(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/credentialsrole/userID/{roleId}", method = RequestMethod.GET)

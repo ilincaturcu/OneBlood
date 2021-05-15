@@ -2,6 +2,7 @@ package ac.OneBlood.Controller;
 
 import ac.OneBlood.Model.AuthRequest;
 import ac.OneBlood.Model.Credentials;
+import ac.OneBlood.Model.CredentialsRole;
 import ac.OneBlood.Service.CredentialsService;
 import ac.OneBlood.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class CredentialsController {
 
     @Autowired
@@ -21,6 +23,10 @@ public class CredentialsController {
     private JwtUtil jwtUtil;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private CredentialsRoleController credentialsRoleController;
+    @Autowired
+    private RoleController roleController;
 
     @GetMapping("/")
     public String welcome() {
@@ -53,6 +59,24 @@ public class CredentialsController {
         return new ResponseEntity<String>(jwt, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/authorization")
+    public ResponseEntity<?> getAuthorization(@RequestBody AuthRequest authRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword())
+            );
+        } catch (Exception ex) {
+            System.out.println(authRequest.getUserName());
+            System.out.println(authRequest.getPassword());
+            throw new Exception(ex.getMessage());
+        }
+
+       Integer id =credentialsService.getCredentialsByEmail(authRequest.getUserName()).getAccount_id();
+        Integer idRole = (Integer) credentialsRoleController.listCredentialsRoleByUserId(id).getBody();
+        String role = (String) roleController.listRoleById(idRole).getBody();
+        return new ResponseEntity<String>(role, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/cont/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listContById(@PathVariable Integer id) {
         Credentials credentials = credentialsService.get(id);
@@ -61,7 +85,7 @@ public class CredentialsController {
     }
 
     @RequestMapping(value = "/api/credentials", method = RequestMethod.POST, headers = "Accept=application/json")
-    public ResponseEntity<?> addNewAppointment(@RequestBody Credentials credentials) {
+    public ResponseEntity<?> addNewCredentials(@RequestBody Credentials credentials) {
         //verifici daca exista, daca nu exista il creezi => 201 created
         //daca exista ii faci update 200ok
         try {
