@@ -15,6 +15,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class PacientController {
 
     @Autowired
@@ -93,5 +94,23 @@ public class PacientController {
                 .created_at(pacient.getCreated_at())
                 .build());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @CrossOrigin
+    @RequestMapping(path="/api/pacient/{status}/{donor_code}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updatePacient(@PathVariable("status") String status, @PathVariable("donor_code") String donor_code) throws NotFoundException {
+
+        try {
+        pacientService.getPacientByDonorCode(donor_code);
+
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Pacient pacient = pacientService.getPacientByDonorCode(donor_code);
+        pacient.setStatus(status);
+        pacientService.save(pacient);
+        System.out.println(status);
+        return new ResponseEntity<>(pacient, HttpStatus.NO_CONTENT);
     }
 }

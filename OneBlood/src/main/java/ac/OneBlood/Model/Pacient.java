@@ -26,4 +26,11 @@ public class Pacient {
     private Integer fk_account_id;
     private Integer self_exclusion_form_id;
     private Timestamp created_at;
+    private String status;
 }
+/*enum Status {
+    PROGRESS,
+    PENDING,
+    CANCELLED,
+    COMPLETED
+}*/

@@ -36,6 +36,7 @@ public class PacientService {
     }
 
     public void save(Pacient pacient) {
+        System.out.println(pacient.getCNP());
         pacientRepository.save(pacient);
     }
 }

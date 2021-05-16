@@ -26,13 +26,7 @@ public class Appointment {
     private String fk_donor_code;
     private Integer fk_doctor_code;
     private Date appointment_date;
-    private Integer status;
 }
 
-/*enum Status {
-    PROGRESS,
-    PENDING,
-    CANCELLED,
-    COMPLETED
-}*/
+
 
