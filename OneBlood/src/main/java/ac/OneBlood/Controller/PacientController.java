@@ -97,11 +97,11 @@ public class PacientController {
     }
 
     @CrossOrigin
-    @RequestMapping(path="/api/pacient/{status}/{donor_code}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/api/pacient/{status}/{donor_code}", method = RequestMethod.PUT)
     public ResponseEntity<?> updatePacient(@PathVariable("status") String status, @PathVariable("donor_code") String donor_code) throws NotFoundException {
 
         try {
-        pacientService.getPacientByDonorCode(donor_code);
+            pacientService.getPacientByDonorCode(donor_code);
 
         } catch (NotFoundException e) {
             e.printStackTrace();

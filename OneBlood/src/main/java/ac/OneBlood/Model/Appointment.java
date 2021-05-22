@@ -1,10 +1,7 @@
 package ac.OneBlood.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -14,6 +11,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "appointment")
 public class Appointment {
@@ -26,6 +24,7 @@ public class Appointment {
     private String fk_donor_code;
     private Integer fk_doctor_code;
     private Date appointment_date;
+    private String appointment_hour;
 }
 
 

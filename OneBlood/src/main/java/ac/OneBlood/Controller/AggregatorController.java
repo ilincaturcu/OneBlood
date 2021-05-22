@@ -1,7 +1,6 @@
 package ac.OneBlood.Controller;
 
 import ac.OneBlood.Model.AuthRequest;
-import ac.OneBlood.Model.Credentials;
 import ac.OneBlood.Model.DoctorRegister;
 import ac.OneBlood.Model.PacientRegister;
 import ac.OneBlood.Service.Aggregator;
@@ -48,7 +47,7 @@ public class AggregatorController {
     public ResponseEntity<?> addAccountWithPacientRole(@Valid @RequestBody PacientRegister pacientRegister, BindingResult bindingResult, HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<Object> entityJWT = new HttpEntity<>(new AuthRequest("ilincafturcu@gmail.com", "Ilinca-113473"), headers);
-        String token = restTemplate.postForObject("http://localhost:9090/authenticate",entityJWT, String.class);
+        String token = restTemplate.postForObject("http://localhost:9090/authenticate", entityJWT, String.class);
         try {
             aggregator.postAccountWithPacientRole(restTemplate, pacientRegister.getCredentials(), pacientRegister.getPacient(), pacientRegister.getPersonalInformation(), token);
         } catch (Exception e) {
@@ -61,7 +60,7 @@ public class AggregatorController {
     public ResponseEntity<?> addPredonareData(@Valid @RequestBody JSONObject jsonObject, BindingResult bindingResult, HttpServletRequest request) throws Exception {
         String predonareId;
         try {
-         predonareId = aggregator.postPredonareData(restTemplate, jsonObject);
+            predonareId = aggregator.postPredonareData(restTemplate, jsonObject);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage() + e.getCause().getLocalizedMessage(), HttpStatus.BAD_REQUEST);
         }

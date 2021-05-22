@@ -1,6 +1,5 @@
 package ac.OneBlood.Controller;
 
-import ac.OneBlood.Model.Credentials;
 import ac.OneBlood.Model.Role;
 import ac.OneBlood.Service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class RoleController {
     @RequestMapping(value = "/api/role/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listRoleById(@PathVariable Integer id) {
         String role = roleService.getRoleById(id).getRole_name();
-        System.out.println(role.toString());
+        System.out.println(role);
         return new ResponseEntity<>(role, HttpStatus.OK);
     }
 

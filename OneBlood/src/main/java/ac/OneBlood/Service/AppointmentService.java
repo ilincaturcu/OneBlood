@@ -8,7 +8,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -29,15 +31,15 @@ public class AppointmentService {
             throw new EmptyResultDataAccessException(id);
     }
 
-    public  List<Appointment> getAppointmentByDonorCode(String donor_code) throws NotFoundException {
-        if (appointmentRepository.findByDonorCode(donor_code)!=null)
+    public List<Appointment> getAppointmentByDonorCode(String donor_code) throws NotFoundException {
+        if (appointmentRepository.findByDonorCode(donor_code) != null)
             return appointmentRepository.findByDonorCode(donor_code);
         else
             throw new NotFoundException(donor_code);
     }
 
     public List<Appointment> getAppointmentByDoctorCode(Integer doctor_code) {
-        if (appointmentRepository.findByDoctorCode(doctor_code)!=null)
+        if (appointmentRepository.findByDoctorCode(doctor_code) != null)
             return appointmentRepository.findByDoctorCode(doctor_code);
         else
             throw new EmptyResultDataAccessException(doctor_code);

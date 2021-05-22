@@ -2,7 +2,6 @@ package ac.OneBlood.Controller;
 
 import ac.OneBlood.Model.AuthRequest;
 import ac.OneBlood.Model.Credentials;
-import ac.OneBlood.Model.CredentialsRole;
 import ac.OneBlood.Service.CredentialsService;
 import ac.OneBlood.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +70,7 @@ public class CredentialsController {
             throw new Exception(ex.getMessage());
         }
 
-       Integer id =credentialsService.getCredentialsByEmail(authRequest.getUserName()).getAccount_id();
+        Integer id = credentialsService.getCredentialsByEmail(authRequest.getUserName()).getAccount_id();
         Integer idRole = (Integer) credentialsRoleController.listCredentialsRoleByUserId(id).getBody();
         String role = (String) roleController.listRoleById(idRole).getBody();
         return new ResponseEntity<String>(role, HttpStatus.OK);
