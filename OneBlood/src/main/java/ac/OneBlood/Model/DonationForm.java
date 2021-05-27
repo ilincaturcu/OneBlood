@@ -22,7 +22,7 @@ public class DonationForm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer donation_form_id;
     private String fk_donor_code;
-    private Integer id_analize_pre_donare;
-    private Integer id_analize_post_donare;
+    private String id_analize_pre_donare;
+    private String id_analize_post_donare;
     private Timestamp created_at;
 }

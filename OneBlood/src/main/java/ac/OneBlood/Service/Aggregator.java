@@ -96,4 +96,32 @@ public class Aggregator {
         }
         return postdonareId.getBody();
     }
+
+
+    public ResponseEntity<String> getPostdonareDataByDateAndDonorCode(RestTemplate restTemplate, String date, String donor_code) {
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> postdonareId = null;
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
+        try {
+            postdonareId = restTemplate.getForEntity("http://localhost:7070/api/postdonare/date/" + date + "/donor_code/" + donor_code, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
+            System.out.println("a intrat in catch :(");
+            return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(postdonareId.getBody(), HttpStatus.OK);
+    }
+
+
+    public ResponseEntity<String> getPredonareDataByDateAndDonorCode(RestTemplate restTemplate, String date, String donor_code) {
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> predonareId = ResponseEntity.ok("default state");
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
+        try {
+            predonareId = restTemplate.getForEntity("http://localhost:7070/api/predonare/date/" + date + "/donor_code/" + donor_code, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
+            System.out.println("a intrat in catch :(");
+            return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(predonareId.getBody(), HttpStatus.OK);
+    }
 }

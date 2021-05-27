@@ -50,4 +50,7 @@ public class DoctorController {
         doctorService.save(doctor);
         return new ResponseEntity<>(doctor, HttpStatus.OK);
     }
+
+
+
 }

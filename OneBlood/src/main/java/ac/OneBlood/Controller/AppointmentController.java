@@ -19,18 +19,20 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 public class AppointmentController {
 
     @Autowired
     private AppointmentService appointmentService;
 
+    @CrossOrigin
     @RequestMapping(value = "/api/appointments", method = RequestMethod.GET)
     public ResponseEntity<?> listAllAppointments() {
         System.out.println(appointmentService.listAllAppointments().toString());
         return new ResponseEntity<>(appointmentService.listAllAppointments(), HttpStatus.OK);
     }
 
+    @CrossOrigin
     //intoarce cartea in functie de id, impreuna cu legaturile catre self, parinte si autori
     @RequestMapping(value = "/api/appointment/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getAppointmentById(@PathVariable Integer id) {
@@ -47,6 +49,7 @@ public class AppointmentController {
                 HttpStatus.OK);
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/api/appointment/donor/{donor_code}", method = RequestMethod.GET)
     public ResponseEntity<?> getAppointmentByDonorCode(@PathVariable String donor_code) throws NotFoundException {
         List<Appointment> appointments;
@@ -58,6 +61,7 @@ public class AppointmentController {
         return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/api/appointment/doctor/{doctor_code}", method = RequestMethod.GET)
     public ResponseEntity<?> getAppointmentByDoctorCode(@PathVariable Integer doctor_code) {
         List<Appointment> appointments;
@@ -70,6 +74,7 @@ public class AppointmentController {
     }
 
 
+    @CrossOrigin
     @RequestMapping(value = "/api/appointment/doctor/{doctor_code}/date/{timestamp}", method = RequestMethod.GET)
     public List<Appointment> getAppointmentByDoctorCodeAfterDate(@PathVariable Integer doctor_code, @PathVariable Long timestamp) {
         List<Appointment> appointments;
@@ -125,6 +130,7 @@ public class AppointmentController {
 //
 
 
+    @CrossOrigin
     //toate programarile unui anumit doctor dintr-o anumita zi, la o anumita ora (data ca timestamp)
     @RequestMapping(value = "/api/appointment/doctor/{doctor_code}/day/{dateIn}/hour/{hour}", method = RequestMethod.GET)
     public ResponseEntity<?> getAppointmentByDoctorPerHour(@PathVariable Integer doctor_code, @PathVariable String dateIn, @PathVariable String hour) throws ParseException {
@@ -155,6 +161,7 @@ public class AppointmentController {
     }
 
 
+    @CrossOrigin
     //toate sloturile disponibile ale unui anumit doctor intr-o anumita zi
     @RequestMapping(value = "/api/appointment/doctor/{doctor_code}/day/{dateIn}/hours", method = RequestMethod.GET)
     public ResponseEntity<?> getFREEAppointmentByDoctorPerHour(@PathVariable Integer doctor_code, @PathVariable String dateIn) throws ParseException {
@@ -177,6 +184,7 @@ public class AppointmentController {
     }
 
 
+    @CrossOrigin
     @RequestMapping(value = "/api/appointments", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<?> addNewAppointment(@RequestBody Appointment appointment) {
         //verifici daca exista, daca nu exista il creezi => 201 created
@@ -189,5 +197,32 @@ public class AppointmentController {
         }
         appointmentService.save(appointment);
         return new ResponseEntity<>(appointment, HttpStatus.OK);
+    }
+
+
+    @CrossOrigin
+    @RequestMapping(value = "/api/appointment/{status}/{id}", method = RequestMethod.PUT, headers = "Accept=application/json")
+    public ResponseEntity<?> changeAppointmentStatus(@PathVariable String status, @PathVariable Integer id) {
+        //verifici daca exista, daca nu exista il creezi => 201 created
+        //daca exista ii faci update 200ok
+        Appointment appointment;
+        try {
+            appointment=appointmentService.getAppointmentById(id);
+        } catch (Exception e) {
+            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+        }
+        appointment.setAppointment_status(status);
+        appointmentService.save(appointment);
+        return new ResponseEntity<>(appointment, HttpStatus.OK);
+    }
+
+
+    @CrossOrigin
+    @DeleteMapping("/api/appointment/{id}")
+    public ResponseEntity<?> deleteAppointmentByDonor(@PathVariable Integer id) {
+        try {appointmentService.getAppointmentById(id);}
+        catch (Exception e){ return new ResponseEntity<>(HttpStatus.NOT_FOUND);}
+        appointmentService.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

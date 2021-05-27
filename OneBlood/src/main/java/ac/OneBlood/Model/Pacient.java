@@ -24,7 +24,7 @@ public class Pacient {
     private BigInteger CNP;
     private String donor_code;
     private Integer fk_account_id;
-    private Integer self_exclusion_form_id;
+    private String self_exclusion_form_id;
     private Timestamp created_at;
     private String status;
 }

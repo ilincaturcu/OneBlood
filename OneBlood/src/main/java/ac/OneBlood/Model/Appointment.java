@@ -25,6 +25,7 @@ public class Appointment {
     private Integer fk_doctor_code;
     private Date appointment_date;
     private String appointment_hour;
+    private String appointment_status;
 }
 
 

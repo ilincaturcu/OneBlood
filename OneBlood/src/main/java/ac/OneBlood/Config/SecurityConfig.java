@@ -47,13 +47,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().disable();
-        http.csrf().disable().authorizeRequests().antMatchers("/authenticate", "/authorization", "/agreggator/cont/pacient")
-                .permitAll().antMatchers(HttpMethod.OPTIONS, "/**")
-                .permitAll().anyRequest().authenticated()
+        http.csrf().disable().authorizeRequests()
+                .antMatchers("/authenticate", "/authorization", "/agreggator/cont/pacient")
+                .permitAll()
+
+                .anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-        .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
+        .cors().configurationSource(request -> buildConfig());
 
+    }
+
+    private CorsConfiguration buildConfig() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addAllowedMethod("*");
+        return corsConfiguration;
     }
 }

@@ -48,4 +48,7 @@ public class AppointmentService {
     public void save(Appointment appointment) {
         appointmentRepository.saveAndFlush(appointment);
     }
+    public void delete(Integer id) {
+        appointmentRepository.deleteById(id);
+    }
 }
