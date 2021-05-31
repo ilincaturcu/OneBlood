@@ -83,6 +83,13 @@ public class CredentialsController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/api/cont/email/{email}", method = RequestMethod.GET)
+    public ResponseEntity<?> listContByEmail(@PathVariable String email) {
+        Credentials credentials = credentialsService.getCredentialsByEmail(email);
+        return new ResponseEntity<>(credentials, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/credentials", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<?> addNewCredentials(@RequestBody Credentials credentials) {
         //verifici daca exista, daca nu exista il creezi => 201 created

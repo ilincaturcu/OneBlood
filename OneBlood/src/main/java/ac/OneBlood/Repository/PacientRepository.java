@@ -15,4 +15,7 @@ public interface PacientRepository extends JpaRepository<Pacient, Integer> {
 
     @Query(value = "SELECT * FROM pacient  WHERE cnp = :cnp", nativeQuery = true)
     Pacient findPacientByCnp(BigInteger cnp);
+
+    @Query(value = "SELECT * FROM pacient  WHERE fk_account_id = :fk_account_id", nativeQuery = true)
+    Pacient findPacientByAccountId(Integer fk_account_id);
 }

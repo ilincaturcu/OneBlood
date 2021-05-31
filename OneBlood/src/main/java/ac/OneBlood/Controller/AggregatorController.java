@@ -141,4 +141,17 @@ public class AggregatorController {
         }
         return new ResponseEntity<>(getAnalize(donationForm.getFk_donor_code(), appointmentDate), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/api/aggregator/pacient/donor_code", method = RequestMethod.POST)
+    public ResponseEntity<?> getDonorCodeByCredentials(@RequestBody Credentials credentials, HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        String donor_code;
+        try {
+            donor_code=aggregator.getDonorCodeByCredentials(credentials, token);
+        } catch (NullPointerException e ) {
+            return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(donor_code, HttpStatus.OK);
+    }
+
 }

@@ -2,12 +2,10 @@ package ac.OneBlood.Service;
 
 import ac.OneBlood.Model.*;
 import net.minidev.json.JSONObject;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -69,6 +67,32 @@ public class Aggregator {
             }
 
         }
+    }
+
+
+
+    public String getDonorCodeByCredentials(Credentials credentials, String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
+        String donorCode=null;
+        Credentials credentials1=null;
+
+        try {
+            credentials1 = new TestRestTemplate().exchange(
+                    "http://localhost:9090/api/cont/email/" + credentials.getEmail(), HttpMethod.GET, entity, Credentials.class).getBody();
+            donorCode = new TestRestTemplate().exchange(
+                    "http://localhost:9090/api/pacient/accountId/" + credentials1.getAccount_id().toString(), HttpMethod.GET, entity, String.class).getBody();
+
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
+            System.out.println("a intrat in catch :(");
+            if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
+                System.out.println(httpClientOrServerExc.getMessage());
+            }
+
+            return donorCode;
+        }
+        return donorCode;
     }
 
 

@@ -39,6 +39,30 @@ public class PacientController {
                 linkTo(methodOn(PacientController.class).listPacients()).withRel("pacients")), HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/api/pacient/accountId/{accountId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getDonorCodeByEmail(@PathVariable Integer accountId) {
+        Pacient pacient;
+        try {
+            pacient = pacientService.getPacientByAccountId(accountId);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(pacient.getDonor_code(), HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/api/pacient/status/{donor_code}", method = RequestMethod.GET)
+    public ResponseEntity<?> getPacientStatusByDonorCode(@PathVariable String donor_code) {
+        Pacient pacient;
+        try {
+            pacient = pacientService.getPacientByDonorCode(donor_code);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(pacient.getStatus(), HttpStatus.OK);
+    }
+
     //crearea unei resurse noi sau inlocuirea completa
     @PutMapping("/api/pacient/{donor_code}")
     public ResponseEntity<?> addPacientByDonorCode(@RequestBody Pacient pacient, @PathVariable("donor_code") String donor_code) throws NotFoundException {
@@ -67,6 +91,23 @@ public class PacientController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
+
+
+    @PutMapping("/api/pacient/quizId/{donor_code}")
+    public ResponseEntity<?> addQuizIdByDonorCode(@RequestBody String quizId, @PathVariable("donor_code") String donor_code) throws NotFoundException {
+       Pacient pacient = new Pacient();
+        try {
+            pacient=pacientService.getPacientByDonorCode(donor_code);
+        } catch (Exception e) {
+            pacient.setSelf_exclusion_form_id(quizId);
+            pacientService.save(pacient);
+            return new ResponseEntity<>(pacientService.getPacientByDonorCode(donor_code), HttpStatus.CREATED);
+        }
+        pacient.setSelf_exclusion_form_id(quizId);
+        pacientService.save(pacient);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
     //crearea unei resurse noi sau inlocuirea completa
     @PutMapping("/api/pacient/cnp/{cnp}")
