@@ -1,7 +1,12 @@
 package ac.OneBlood.Service;
 
 import ac.OneBlood.Model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javassist.NotFoundException;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +16,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
 
 @Service
 public class Aggregator {
@@ -18,6 +31,15 @@ public class Aggregator {
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
     }
+
+    @Autowired
+    AppointmentService appointmentService;
+
+    @Autowired
+    PacientService pacientService;
+
+    @Autowired
+    PersonalInformationService personalInformationService;
 
     public void postAccountWithDoctorRole(RestTemplate restTemplate, Credentials credentials, Doctor doctor, String token) {
         HttpHeaders headers = new HttpHeaders();
@@ -148,4 +170,69 @@ public class Aggregator {
         }
         return new ResponseEntity<>(predonareId.getBody(), HttpStatus.OK);
     }
+
+    public List<Appointment> getAppointmentByDoctorCode(Integer doctor_code) {
+        return appointmentService.getAppointmentByDoctorCode(doctor_code);
+    }
+
+    public Pacient getPacientByDonorCode(String donor_code) throws NotFoundException {
+        return pacientService.getPacientByDonorCode(donor_code);
+    }
+
+    public PersonalInformation getPacientInfoByCNP(BigInteger cnp) throws Exception {
+        return personalInformationService.getPersonalInformationByCNP(cnp);
+    }
+    public ArrayList getAppointmentAndPacientDetailsForTodayByDoctorCode(Integer doctor_code){
+        JSONObject pacientJson, appointmentJson, personalJson = null;
+        JSONObject finalJson = new JSONObject();
+        JSONParser parser = new JSONParser();
+        List<Appointment> appointmentList = null;
+        Pacient pacient = null;
+        PersonalInformation personalInformation = null;
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayList arrayList = new ArrayList();
+        try {
+            appointmentList = getAppointmentByDoctorCode(doctor_code);
+            //for each appointment get fk_donor code and make call to pacient
+            //from pacient get cnp and make call to personal info
+
+            Date day = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setTimeZone(TimeZone.getDefault());
+            String formattedDate = sdf.format(day);
+
+            appointmentList = appointmentList.stream().filter(appointment -> sdf.format(appointment.getAppointment_date()).equals(formattedDate)).collect(Collectors.toList());
+
+            appointmentList.forEach(appointment -> System.out.println(appointment.toString()));
+            for (Appointment appointment : appointmentList) {
+                finalJson =  new JSONObject();
+                try {
+                    pacient = getPacientByDonorCode(appointment.getFk_donor_code());
+                    personalInformation = getPacientInfoByCNP(pacient.getCNP());
+
+                    pacientJson = (JSONObject) parser.parse(mapper.writeValueAsString(pacient));
+                    appointmentJson = (JSONObject) parser.parse(mapper.writeValueAsString(appointment));
+                    personalJson = (JSONObject) parser.parse(mapper.writeValueAsString(personalInformation));
+
+                    finalJson.put("pacient", pacientJson);
+                    finalJson.put("personalInformation", personalJson);
+                    finalJson.put("appointment", appointmentJson);
+
+                    if(finalJson != null)
+                        arrayList.add(finalJson);
+                } catch (ParseException | NotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        } catch(NullPointerException e){
+            System.out.println("CATCH");
+            return null;
+        }
+        return arrayList;
+    }
+
 }

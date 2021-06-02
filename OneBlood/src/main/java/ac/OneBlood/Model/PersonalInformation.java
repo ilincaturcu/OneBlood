@@ -1,9 +1,6 @@
 package ac.OneBlood.Model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -14,6 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Getter
+@ToString
 @Setter
 @Entity
 @Table(name = "personal_information")

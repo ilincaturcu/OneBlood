@@ -9,7 +9,6 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,13 +19,10 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -89,15 +85,14 @@ public class AggregatorController {
     }
 
 
-
     //toate toate analizele valabile pentru un pacient
     @RequestMapping(value = "/api/agreggator/donor/{donor_code}/date/{dateIn}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAnalize(@PathVariable String donor_code, @PathVariable String dateIn){
+    public ResponseEntity<?> getAnalize(@PathVariable String donor_code, @PathVariable String dateIn) {
 
         ResponseEntity<String> postdonare;
         String a, b;
         JSONObject pre, post, total = new JSONObject();
-        ResponseEntity<String>  predonare;
+        ResponseEntity<String> predonare;
         try {
             a = aggregator.getPostdonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
             JSONParser parser = new JSONParser();
@@ -110,7 +105,7 @@ public class AggregatorController {
             System.out.println(post);
 //            total.put("pre",pre);
 //            total.put("post", post);
-           // System.out.println(total);
+            // System.out.println(total);
 
         } catch (EmptyResultDataAccessException | ParseException | NullPointerException e) {
             System.out.println(e.getMessage());
@@ -118,7 +113,6 @@ public class AggregatorController {
         }
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
-
 
 
     //un get analize by donation form id
@@ -135,8 +129,8 @@ public class AggregatorController {
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
             appointmentDate = sdf.format(date);
             System.out.println(appointmentDate);
-           // getAnalize(donationForm.getFk_donor_code(), appointmentDate);
-        } catch (NotFoundException | NullPointerException e ) {
+            // getAnalize(donationForm.getFk_donor_code(), appointmentDate);
+        } catch (NotFoundException | NullPointerException e) {
             return new ResponseEntity<>("Analizele nu sunt introduse in sistem", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(getAnalize(donationForm.getFk_donor_code(), appointmentDate), HttpStatus.OK);
@@ -147,13 +141,24 @@ public class AggregatorController {
         String token = request.getHeader("Authorization").substring(7);
         String donor_code;
         try {
-            donor_code=aggregator.getDonorCodeByCredentials(credentials, token);
-        } catch (NullPointerException e ) {
+            donor_code = aggregator.getDonorCodeByCredentials(credentials, token);
+        } catch (NullPointerException e) {
             return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(donor_code, HttpStatus.OK);
     }
 
+//toti pacientii de astazi pentru un anumit doctor, cu personal info
+    @RequestMapping(value = "/api/aggregator/appointments/pacient/doctor/{doctor_code}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAppointmentAndPacientDetailsForTodayByDoctorCode(@PathVariable Integer doctor_code) {
+        ArrayList response = new ArrayList();
+        try {
+            response = aggregator.getAppointmentAndPacientDetailsForTodayByDoctorCode(doctor_code);
+        } catch (Exception e) {
+            System.out.println("CATCH");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
 
-
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

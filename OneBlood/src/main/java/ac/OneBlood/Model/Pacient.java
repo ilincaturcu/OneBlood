@@ -1,9 +1,6 @@
 package ac.OneBlood.Model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -11,6 +8,7 @@ import java.sql.Timestamp;
 
 @AllArgsConstructor
 @Builder
+@ToString
 @Getter
 @Setter
 @Entity
