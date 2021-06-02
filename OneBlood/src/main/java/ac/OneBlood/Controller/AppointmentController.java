@@ -2,6 +2,7 @@ package ac.OneBlood.Controller;
 
 import ac.OneBlood.Model.Appointment;
 import ac.OneBlood.Service.AppointmentService;
+import ac.OneBlood.Util.MailService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,6 +27,9 @@ public class AppointmentController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    @Autowired
+    private MailService mailService;
 
     @CrossOrigin
     @RequestMapping(value = "/api/appointments", method = RequestMethod.GET)
@@ -207,22 +213,55 @@ public class AppointmentController {
         //daca exista ii faci update 200ok
         Appointment appointment;
         try {
-            appointment=appointmentService.getAppointmentById(id);
+            appointment = appointmentService.getAppointmentById(id);
         } catch (Exception e) {
-            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         appointment.setAppointment_status(status);
         appointmentService.save(appointment);
         return new ResponseEntity<>(appointment, HttpStatus.OK);
     }
 
+    @CrossOrigin
+    @RequestMapping(value = "/api/appointment/current/{donor_code}", method = RequestMethod.GET)
+    public Boolean doesTheDonorHaveAPendingApp(@PathVariable String donor_code) {
+        List<Appointment> appointments = null;
+        try {
+            appointments = appointmentService.getAppointmentByDonorCode(donor_code)
+                    .stream()
+                    .filter(appointment -> appointment.getAppointment_status().equals("pending"))
+                    .collect(Collectors.toList());
+            appointments.forEach(x-> System.out.println(x));
+        } catch (EmptyResultDataAccessException | NotFoundException e) {
+            return false;
+        }
+        if (appointments.isEmpty())
+            return false;
+        else return true;
+    }
+
 
     @CrossOrigin
     @DeleteMapping("/api/appointment/{id}")
     public ResponseEntity<?> deleteAppointmentByDonor(@PathVariable Integer id) {
-        try {appointmentService.getAppointmentById(id);}
-        catch (Exception e){ return new ResponseEntity<>(HttpStatus.NOT_FOUND);}
+        try {
+            appointmentService.getAppointmentById(id);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         appointmentService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    @RequestMapping(value = "/api/mail/{emailAddress}", method = RequestMethod.PUT)
+    public ResponseEntity<?> mail(@RequestBody String emailContent, @PathVariable String emailAddress) {
+        try {
+            mailService.sendEmail(emailContent, emailAddress);
+        } catch (Exception e ) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 }

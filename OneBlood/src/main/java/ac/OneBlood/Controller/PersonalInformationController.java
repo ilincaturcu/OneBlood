@@ -32,6 +32,19 @@ public class PersonalInformationController {
                 linkTo(methodOn(PersonalInformationController.class).listPersonalInfoByCNP(CNP)).withSelfRel()), HttpStatus.OK);
     }
 
+
+
+    @RequestMapping(value = "/api/personalInformation/gender/{CNP}", method = RequestMethod.GET)
+    public ResponseEntity<?> getGenderByCNP(@PathVariable BigInteger CNP) throws Exception {
+        PersonalInformation personalInformation;
+        try {
+            personalInformation = personalInformationService.getPersonalInformationByCNP(CNP);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(personalInformation.getSex(), HttpStatus.OK);
+    }
+
     //crearea unei resurse noi sau inlocuirea completa
     @PutMapping("/api/personalInformation/{cnp}")
     public ResponseEntity<?> addPersonalInformationByCNP(@RequestBody PersonalInformation personalInformation, @PathVariable("cnp") BigInteger cnp) throws Exception {

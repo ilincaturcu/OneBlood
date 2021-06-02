@@ -54,7 +54,7 @@ public class Aggregator {
             pacient.setFk_account_id(accountId.getBody());
             HttpEntity<Object> entityPacient = new HttpEntity<>(pacient, headers);
             restTemplate.put("http://localhost:9090/api/pacient/" + pacient.getDonor_code(), entityPacient);
-            HttpEntity<Object> entityCredentialsRole = new HttpEntity<>(new CredentialsRole(accountId.getBody(), 1), headers);
+            HttpEntity<Object> entityCredentialsRole = new HttpEntity<>(new CredentialsRole(accountId.getBody(), 2), headers);
             restTemplate.put("http://localhost:9090/api/credentialsrole", entityCredentialsRole, String.class);
             personalInformation.setCNP(pacient.getCNP());
             HttpEntity<Object> entityPersonal = new HttpEntity<>(personalInformation, headers);

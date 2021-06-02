@@ -84,10 +84,33 @@ public class CredentialsController {
     }
 
 
+    @RequestMapping(value = "/api/cont/email/accountId/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getEmailByAccountId(@PathVariable Integer id) {
+        Credentials credentials = credentialsService.get(id);
+
+        return new ResponseEntity<>(credentials.getEmail(), HttpStatus.OK);
+    }
+
+
     @RequestMapping(value = "/api/cont/email/{email}", method = RequestMethod.GET)
     public ResponseEntity<?> listContByEmail(@PathVariable String email) {
         Credentials credentials = credentialsService.getCredentialsByEmail(email);
         return new ResponseEntity<>(credentials, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/mail/existingAccount/{email}", method = RequestMethod.GET)
+    public ResponseEntity<?> validateIfTheEmailHasAnAccount(@PathVariable String email) {
+        Credentials credentials = null;
+        try {
+            credentials = credentialsService.getCredentialsByEmail(email);
+        } catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.OK);
+        }
+
+        if (credentials != null)
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        else return new ResponseEntity<>(false, HttpStatus.OK);
+
     }
 
     @RequestMapping(value = "/api/credentials", method = RequestMethod.POST, headers = "Accept=application/json")
@@ -103,4 +126,6 @@ public class CredentialsController {
         credentialsService.save(credentials);
         return new ResponseEntity<>(credentials.getAccount_id(), HttpStatus.OK);
     }
+
+
 }

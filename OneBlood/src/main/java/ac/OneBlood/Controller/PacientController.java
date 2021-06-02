@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -24,6 +27,13 @@ public class PacientController {
     @RequestMapping(value = "/api/pacients", method = RequestMethod.GET)
     public ResponseEntity<?> listPacients() {
         return new ResponseEntity<>(pacientService.listAllPacients(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/pacient/last/donor_code", method = RequestMethod.GET)
+    public ResponseEntity<?> lastDonorCode() {
+        List<Pacient> pacients = pacientService.listAllPacients();
+        Pacient mostRecent= Collections.max(pacients, Comparator.comparing(Pacient::getDonor_code));
+        return new ResponseEntity<>(mostRecent.getDonor_code(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/pacient/{donor_code}", method = RequestMethod.GET)
@@ -51,6 +61,28 @@ public class PacientController {
         return new ResponseEntity<>(pacient.getDonor_code(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/pacient/accountId/donor_code/{donor_code}", method = RequestMethod.GET)
+    public ResponseEntity<?> getaccountIdByDonorCode(@PathVariable String donor_code) {
+        Pacient pacient;
+        try {
+            pacient = pacientService.getPacientByDonorCode(donor_code);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(pacient.getFk_account_id(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/pacient/cnp/{donor_code}", method = RequestMethod.GET)
+    public ResponseEntity<?> listPacientsCNPByDonorCode(@PathVariable String donor_code) {
+        Pacient pacient;
+        try {
+            pacient = pacientService.getPacientByDonorCode(donor_code);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(pacient.getCNP(), HttpStatus.OK);
+    }
+
 
     @RequestMapping(value = "/api/pacient/status/{donor_code}", method = RequestMethod.GET)
     public ResponseEntity<?> getPacientStatusByDonorCode(@PathVariable String donor_code) {
@@ -63,11 +95,8 @@ public class PacientController {
         return new ResponseEntity<>(pacient.getStatus(), HttpStatus.OK);
     }
 
-    //crearea unei resurse noi sau inlocuirea completa
     @PutMapping("/api/pacient/{donor_code}")
     public ResponseEntity<?> addPacientByDonorCode(@RequestBody Pacient pacient, @PathVariable("donor_code") String donor_code) throws NotFoundException {
-        //pentru inlocuirea completa (update) 204 no content
-        //pentru crearea unei resurse noi 201 created
         try {
             pacientService.getPacientByDonorCode(donor_code);
         } catch (Exception e) {
@@ -77,6 +106,7 @@ public class PacientController {
                     .donor_code(pacient.getDonor_code())
                     .self_exclusion_form_id(pacient.getSelf_exclusion_form_id())
                     .created_at(pacient.getCreated_at())
+                    .status(pacient.getStatus())
                     .build());
             return new ResponseEntity<>(pacientService.getPacientByDonorCode(donor_code), HttpStatus.CREATED);
         }
@@ -87,6 +117,7 @@ public class PacientController {
                 .donor_code(pacient.getDonor_code())
                 .self_exclusion_form_id(pacient.getSelf_exclusion_form_id())
                 .created_at(pacient.getCreated_at())
+                .status(pacient.getStatus())
                 .build());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -109,11 +140,9 @@ public class PacientController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //crearea unei resurse noi sau inlocuirea completa
+
     @PutMapping("/api/pacient/cnp/{cnp}")
     public ResponseEntity<?> addPacientByCNP(@RequestBody Pacient pacient, @PathVariable("cnp") BigInteger cnp) throws NotFoundException {
-        //pentru inlocuirea completa (update) 204 no content
-        //pentru crearea unei resurse noi 201 created
         try {
             pacientService.getPacientByCnp(cnp);
         } catch (Exception e) {
