@@ -115,6 +115,38 @@ public class AggregatorController {
     }
 
 
+
+    //toate toate analizele valabile pentru un pacient
+    @RequestMapping(value = "/api/agreggator/donor/{donor_code}/date/{dateIn}", method = RequestMethod.GET)
+    public ResponseEntity<?> putAnalize(@PathVariable String donor_code, @PathVariable String dateIn) {
+
+        ResponseEntity<String> postdonare;
+        String a, b;
+        JSONObject pre, post, total = new JSONObject();
+        ResponseEntity<String> predonare;
+        try {
+            a = aggregator.getPostdonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
+            JSONParser parser = new JSONParser();
+            post = (JSONObject) parser.parse(a);
+
+            b = aggregator.getPredonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
+            pre = (JSONObject) parser.parse(b);
+
+            post.putAll(pre);
+            System.out.println(post);
+//            total.put("pre",pre);
+//            total.put("post", post);
+            // System.out.println(total);
+
+        } catch (EmptyResultDataAccessException | ParseException | NullPointerException e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+
+
     //un get analize by donation form id
     //primeste donation form id si face un req catre endpointul din aggregator cu donor code si createdAt ca sa intoarca toatele analizele
     @RequestMapping(value = "/api/donationForm/tests/{id}", method = RequestMethod.GET)

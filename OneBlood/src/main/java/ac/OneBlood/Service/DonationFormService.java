@@ -28,7 +28,7 @@ public class DonationFormService {
             throw new EmptyResultDataAccessException(id);
     }
 
-    public DonationForm getDonationFormByDonorCode(String donor_code) throws NotFoundException {
+    public List<DonationForm> getDonationFormByDonorCode(String donor_code) throws NotFoundException {
         if (donationFormRepository.findByDonorCode(donor_code) != null)
             return donationFormRepository.findByDonorCode(donor_code);
         else

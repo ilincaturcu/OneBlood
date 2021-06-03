@@ -9,6 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -30,6 +37,33 @@ public class DonationFormController {
         return new ResponseEntity<>(EntityModel.of(donationForm,
                 linkTo(methodOn(DonationFormController.class).listDonationFormById(id)).withSelfRel(),
                 linkTo(methodOn(PacientController.class).listPacientByDonorCode(donationForm.getFk_donor_code())).withRel("pacientByDonorCode")), HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/api/donationForm/{donor_code}/{date}", method = RequestMethod.GET)
+    public ResponseEntity<?> listDonationFormByDonorCodeAndDate(@PathVariable String donor_code, @PathVariable String date) throws ParseException {
+        List<DonationForm> donationForms;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Date appointmentDate = sdf.parse(date);
+        try {
+            donationForms = donationFormService
+                    .getDonationFormByDonorCode(donor_code)
+                    .stream()
+                    .filter(form -> {
+                        try {
+                            return sdf.parse(form.getCreated_at().toString()).equals(appointmentDate);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(donationForms.stream().findFirst(), HttpStatus.OK);
     }
 
 
