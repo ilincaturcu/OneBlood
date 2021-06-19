@@ -27,6 +27,13 @@ public class DoctorService {
             throw new EmptyResultDataAccessException(id);
     }
 
+    public Doctor getDoctorByAccountId(Integer id) {
+        if (doctorRepository.findByAccountId(id)!=null)
+            return doctorRepository.findByAccountId(id);
+        else
+            throw new EmptyResultDataAccessException(id);
+    }
+
 
     public void save(Doctor doctor) {
         doctorRepository.save(doctor);

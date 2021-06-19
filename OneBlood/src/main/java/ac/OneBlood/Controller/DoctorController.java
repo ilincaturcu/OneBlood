@@ -51,6 +51,15 @@ public class DoctorController {
         return new ResponseEntity<>(doctor, HttpStatus.OK);
     }
 
-
+    @RequestMapping(value = "/api/doctor/doctor_code/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> listDoctorCodeById(@PathVariable String id) {
+        Doctor doctor;
+        try {
+            doctor = doctorService.getDoctorByAccountId(Integer.parseInt(id));
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(doctor.getDoctor_code(), HttpStatus.OK);
+    }
 
 }

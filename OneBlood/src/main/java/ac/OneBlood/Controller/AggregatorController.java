@@ -9,6 +9,8 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 @RestController
@@ -93,6 +96,8 @@ public class AggregatorController {
         String a, b;
         JSONObject pre, post, total = new JSONObject();
         ResponseEntity<String> predonare;
+
+        System.out.println("linia 97 din aggregator controller "  + dateIn);
         try {
             a = aggregator.getPostdonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
             JSONParser parser = new JSONParser();
@@ -103,40 +108,6 @@ public class AggregatorController {
 
             post.putAll(pre);
             System.out.println(post);
-//            total.put("pre",pre);
-//            total.put("post", post);
-            // System.out.println(total);
-
-        } catch (EmptyResultDataAccessException | ParseException | NullPointerException e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(post, HttpStatus.OK);
-    }
-
-
-
-    //toate toate analizele valabile pentru un pacient
-    @RequestMapping(value = "/api/agreggator/donor/{donor_code}/date/{dateIn}", method = RequestMethod.GET)
-    public ResponseEntity<?> putAnalize(@PathVariable String donor_code, @PathVariable String dateIn) {
-
-        ResponseEntity<String> postdonare;
-        String a, b;
-        JSONObject pre, post, total = new JSONObject();
-        ResponseEntity<String> predonare;
-        try {
-            a = aggregator.getPostdonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
-            JSONParser parser = new JSONParser();
-            post = (JSONObject) parser.parse(a);
-
-            b = aggregator.getPredonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
-            pre = (JSONObject) parser.parse(b);
-
-            post.putAll(pre);
-            System.out.println(post);
-//            total.put("pre",pre);
-//            total.put("post", post);
-            // System.out.println(total);
 
         } catch (EmptyResultDataAccessException | ParseException | NullPointerException e) {
             System.out.println(e.getMessage());
@@ -158,14 +129,60 @@ public class AggregatorController {
             donationForm = donationFormService.getDonationFormById(id);
             date = new Date(donationForm.getCreated_at().getTime());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            //sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
             appointmentDate = sdf.format(date);
-            System.out.println(appointmentDate);
+            System.out.println("linia 97 din aggregator controller " + appointmentDate);
             // getAnalize(donationForm.getFk_donor_code(), appointmentDate);
         } catch (NotFoundException | NullPointerException e) {
             return new ResponseEntity<>("Analizele nu sunt introduse in sistem", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(getAnalize(donationForm.getFk_donor_code(), appointmentDate), HttpStatus.OK);
+    }
+
+
+
+
+    @RequestMapping(value = "/api/donationForm/tests/pre/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> listTestsResultsPreDonationByDonationFormId(@PathVariable Integer id) {
+        DonationForm donationForm = new DonationForm();
+        Date date;
+        String appointmentDate, data;
+        JSONObject preDonation = new JSONObject();
+        JSONParser parser = new JSONParser();
+        try {
+            donationForm = donationFormService.getDonationFormById(id);
+            date = new Date(donationForm.getCreated_at().getTime());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            appointmentDate = sdf.format(date);
+            data = aggregator.getPredonareDataByDateAndDonorCode(restTemplate, appointmentDate, donationForm.getFk_donor_code()).getBody();
+            preDonation = (JSONObject) parser.parse(data);
+        } catch (NotFoundException | NullPointerException | ParseException e) {
+            return new ResponseEntity<>("Analizele nu sunt introduse in sistem", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(preDonation, HttpStatus.OK);
+    }
+
+
+
+
+    @RequestMapping(value = "/api/donationForm/tests/post/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> listTestsResultsPostDonationByDonationFormId(@PathVariable Integer id) {
+        DonationForm donationForm = new DonationForm();
+        Date date;
+        String appointmentDate, data;
+        JSONObject postDonation = new JSONObject();
+        JSONParser parser = new JSONParser();
+        try {
+            donationForm = donationFormService.getDonationFormById(id);
+            date = new Date(donationForm.getCreated_at().getTime());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            appointmentDate = sdf.format(date);
+            data = aggregator.getPostdonareDataByDateAndDonorCode(restTemplate, appointmentDate, donationForm.getFk_donor_code()).getBody();
+            postDonation = (JSONObject) parser.parse(data);
+        } catch (NotFoundException | NullPointerException | ParseException e) {
+            return new ResponseEntity<>("Analizele nu sunt introduse in sistem", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(postDonation, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/aggregator/pacient/donor_code", method = RequestMethod.POST)
@@ -180,6 +197,19 @@ public class AggregatorController {
         return new ResponseEntity<>(donor_code, HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/api/aggregator/doctor/doctor_code", method = RequestMethod.POST)
+    public ResponseEntity<?> getDoctorCodeByCredentials(@RequestBody Credentials credentials, HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        String doctor_code;
+        try {
+            doctor_code = aggregator.getDoctorCodeByCredentials(credentials, token);
+        } catch (NullPointerException e) {
+            return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(doctor_code, HttpStatus.OK);
+    }
+
 //toti pacientii de astazi pentru un anumit doctor, cu personal info
     @RequestMapping(value = "/api/aggregator/appointments/pacient/doctor/{doctor_code}", method = RequestMethod.GET)
     public ResponseEntity<?> getAppointmentAndPacientDetailsForTodayByDoctorCode(@PathVariable Integer doctor_code) {
@@ -192,5 +222,40 @@ public class AggregatorController {
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCode(@PathVariable Integer doctor_code) {
+        ArrayList response = new ArrayList();
+        try {
+            response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCode(doctor_code);
+        } catch (Exception e) {
+            System.out.println("CATCH");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}/{pageNo}/{pageSize}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCodePaginated(@PathVariable Integer doctor_code, @PathVariable Integer pageNo,
+                                                                                     @PathVariable Integer pageSize) {
+        ArrayList response = new ArrayList();
+        List responsePaginated = null;
+
+        try {
+            response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCode(doctor_code);
+            //if pageNo+1 * pageSize : response.size() =>>> response.subList(pageNo*pageSize,response.size())
+            responsePaginated =  response.subList(pageNo*pageSize,(pageNo+1)*pageSize );
+
+//            for(int i=(pageNo) * (pageSize-1);i<((pageNo+1) * pageSize) -1;i++){
+//            responsePaginated.add(response.get(i));}
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(responsePaginated, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(responsePaginated, HttpStatus.OK);
     }
 }

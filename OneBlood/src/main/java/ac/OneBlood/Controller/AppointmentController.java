@@ -38,6 +38,8 @@ public class AppointmentController {
         return new ResponseEntity<>(appointmentService.listAllAppointments(), HttpStatus.OK);
     }
 
+
+
     @CrossOrigin
     //intoarce cartea in functie de id, impreuna cu legaturile catre self, parinte si autori
     @RequestMapping(value = "/api/appointment/{id}", method = RequestMethod.GET)
@@ -77,6 +79,19 @@ public class AppointmentController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(appointments, HttpStatus.OK);
+    }
+
+    //pentru paginare, numarul de progrmari
+    @CrossOrigin
+    @RequestMapping(value = "/api/appointment/doctor/{doctor_code}/number", method = RequestMethod.GET)
+    public ResponseEntity<?> getNumberOfAppointmentByDoctorCode(@PathVariable Integer doctor_code) {
+        List<Appointment> appointments;
+        try {
+            appointments = appointmentService.getAppointmentByDoctorCode(doctor_code);
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(appointments.size(), HttpStatus.OK);
     }
 
 
@@ -209,8 +224,6 @@ public class AppointmentController {
     @CrossOrigin
     @RequestMapping(value = "/api/appointment/{status}/{id}", method = RequestMethod.PUT, headers = "Accept=application/json")
     public ResponseEntity<?> changeAppointmentStatus(@PathVariable String status, @PathVariable Integer id) {
-        //verifici daca exista, daca nu exista il creezi => 201 created
-        //daca exista ii faci update 200ok
         Appointment appointment;
         try {
             appointment = appointmentService.getAppointmentById(id);

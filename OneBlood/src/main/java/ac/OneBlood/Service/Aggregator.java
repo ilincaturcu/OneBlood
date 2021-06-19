@@ -39,6 +39,9 @@ public class Aggregator {
     PacientService pacientService;
 
     @Autowired
+    DoctorService doctorService;
+
+    @Autowired
     PersonalInformationService personalInformationService;
 
     public void postAccountWithDoctorRole(RestTemplate restTemplate, Credentials credentials, Doctor doctor, String token) {
@@ -56,7 +59,7 @@ public class Aggregator {
 
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
 
-            System.out.println("a intrat in catch :(");
+            System.out.println(httpClientOrServerExc.getMessage());
             //           if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
 //                ResponseEntity<Carte> resultCarte = restTemplate.postForEntity("http://localhost:9090/api/carti", carte, Carte.class);
 //                System.out.println("carte");
@@ -83,7 +86,6 @@ public class Aggregator {
             restTemplate.put("http://localhost:9090/api/personalInformation/" + pacient.getCNP(), entityPersonal);
 
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-            System.out.println("a intrat in catch :(");
             if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
                 System.out.println(httpClientOrServerExc.getMessage());
             }
@@ -107,7 +109,6 @@ public class Aggregator {
                     "http://localhost:9090/api/pacient/accountId/" + credentials1.getAccount_id().toString(), HttpMethod.GET, entity, String.class).getBody();
 
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-            System.out.println("a intrat in catch :(");
             if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
                 System.out.println(httpClientOrServerExc.getMessage());
             }
@@ -118,27 +119,52 @@ public class Aggregator {
     }
 
 
-    public String postPredonareData(RestTemplate restTemplate, JSONObject predonareData) {
+
+    public String getDoctorCodeByCredentials(Credentials credentials, String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
+        String doctor_code=null;
+        Credentials credentials1=null;
+
+        try {
+            credentials1 = new TestRestTemplate().exchange(
+                    "http://localhost:9090/api/cont/email/" + credentials.getEmail(), HttpMethod.GET, entity, Credentials.class).getBody();
+            doctor_code = doctorService.getDoctorByAccountId(credentials1.getAccount_id()).getDoctor_code().toString();
+            System.out.println(doctor_code);
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
+            if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
+                System.out.println(httpClientOrServerExc.getMessage());
+            }
+
+            return doctor_code.toString();
+        }
+        return doctor_code.toString();
+    }
+
+
+    public String postPredonareData(RestTemplate restTemplate, JSONObject predonareData) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         ResponseEntity<String> predonareId = null;
         HttpEntity<Object> entity = new HttpEntity<>(predonareData, headers);
         try {
             predonareId = restTemplate.postForEntity("http://localhost:7070/api/predonare", entity, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-            System.out.println("a intrat in catch :(");
+            System.out.println(httpClientOrServerExc.getMessage());
+            throw new Exception(httpClientOrServerExc.getMessage());
         }
         return predonareId.getBody();
     }
 
 
-    public String postPostdonareData(RestTemplate restTemplate, JSONObject postdonareData) {
+    public String postPostdonareData(RestTemplate restTemplate, JSONObject postdonareData) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         ResponseEntity<String> postdonareId = null;
         HttpEntity<Object> entity = new HttpEntity<>(postdonareData, headers);
         try {
             postdonareId = restTemplate.postForEntity("http://localhost:7070/api/postdonare", entity, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-            System.out.println("a intrat in catch :(");
+            throw new Exception((httpClientOrServerExc.getMessage()));
         }
         return postdonareId.getBody();
     }
@@ -151,7 +177,7 @@ public class Aggregator {
         try {
             postdonareId = restTemplate.getForEntity("http://localhost:7070/api/postdonare/date/" + date + "/donor_code/" + donor_code, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-            System.out.println("a intrat in catch :(");
+            System.out.println(httpClientOrServerExc.getMessage());
             return new ResponseEntity<>( HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(postdonareId.getBody(), HttpStatus.OK);
@@ -165,7 +191,7 @@ public class Aggregator {
         try {
             predonareId = restTemplate.getForEntity("http://localhost:7070/api/predonare/date/" + date + "/donor_code/" + donor_code, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-            System.out.println("a intrat in catch :(");
+            System.out.println(httpClientOrServerExc.getMessage());
             return new ResponseEntity<>( HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(predonareId.getBody(), HttpStatus.OK);
@@ -202,6 +228,56 @@ public class Aggregator {
             String formattedDate = sdf.format(day);
 
             appointmentList = appointmentList.stream().filter(appointment -> sdf.format(appointment.getAppointment_date()).equals(formattedDate)).collect(Collectors.toList());
+
+            appointmentList.forEach(appointment -> System.out.println(appointment.toString()));
+            for (Appointment appointment : appointmentList) {
+                finalJson =  new JSONObject();
+                try {
+                    pacient = getPacientByDonorCode(appointment.getFk_donor_code());
+                    personalInformation = getPacientInfoByCNP(pacient.getCNP());
+
+                    pacientJson = (JSONObject) parser.parse(mapper.writeValueAsString(pacient));
+                    appointmentJson = (JSONObject) parser.parse(mapper.writeValueAsString(appointment));
+                    personalJson = (JSONObject) parser.parse(mapper.writeValueAsString(personalInformation));
+
+                    finalJson.put("pacient", pacientJson);
+                    finalJson.put("personalInformation", personalJson);
+                    finalJson.put("appointment", appointmentJson);
+
+                    if(finalJson != null)
+                        arrayList.add(finalJson);
+                } catch (ParseException | NotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        } catch(NullPointerException e){
+            System.out.println("CATCH");
+            return null;
+        }
+        return arrayList;
+    }
+
+
+
+    public ArrayList getAllAppointmentAndPacientDetailsByDoctorCode(Integer doctor_code){
+        JSONObject pacientJson, appointmentJson, personalJson = null;
+        JSONObject finalJson = new JSONObject();
+        JSONParser parser = new JSONParser();
+        List<Appointment> appointmentList = null;
+        Pacient pacient = null;
+        PersonalInformation personalInformation = null;
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayList arrayList = new ArrayList();
+        try {
+            appointmentList = getAppointmentByDoctorCode(doctor_code);
+            Date day = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setTimeZone(TimeZone.getDefault());
+            String formattedDate = sdf.format(day);
 
             appointmentList.forEach(appointment -> System.out.println(appointment.toString()));
             for (Appointment appointment : appointmentList) {
