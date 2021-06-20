@@ -31,7 +31,7 @@ public class CredentialsService {
             throw new EmptyResultDataAccessException(id);
     }
 
-    public Credentials getCredentialsByEmail(String email){
-      return credentialsRepository.findByEmail(email);
+    public Credentials getCredentialsByEmail(String email) {
+        return credentialsRepository.findByEmail(email);
     }
 }

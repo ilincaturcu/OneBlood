@@ -33,7 +33,6 @@ public class PersonalInformationController {
     }
 
 
-
     @RequestMapping(value = "/api/personalInformation/gender/{CNP}", method = RequestMethod.GET)
     public ResponseEntity<?> getGenderByCNP(@PathVariable BigInteger CNP) throws Exception {
         PersonalInformation personalInformation;

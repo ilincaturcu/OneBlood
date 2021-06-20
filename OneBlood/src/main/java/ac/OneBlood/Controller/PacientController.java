@@ -32,7 +32,7 @@ public class PacientController {
     @RequestMapping(value = "/api/pacient/last/donor_code", method = RequestMethod.GET)
     public ResponseEntity<?> lastDonorCode() {
         List<Pacient> pacients = pacientService.listAllPacients();
-        Pacient mostRecent= Collections.max(pacients, Comparator.comparing(Pacient::getDonor_code));
+        Pacient mostRecent = Collections.max(pacients, Comparator.comparing(Pacient::getDonor_code));
         return new ResponseEntity<>(mostRecent.getDonor_code(), HttpStatus.OK);
     }
 
@@ -123,13 +123,11 @@ public class PacientController {
     }
 
 
-
-
     @PutMapping("/api/pacient/quizId/{donor_code}")
     public ResponseEntity<?> addQuizIdByDonorCode(@RequestBody String quizId, @PathVariable("donor_code") String donor_code) throws NotFoundException {
-       Pacient pacient = new Pacient();
+        Pacient pacient = new Pacient();
         try {
-            pacient=pacientService.getPacientByDonorCode(donor_code);
+            pacient = pacientService.getPacientByDonorCode(donor_code);
         } catch (Exception e) {
             pacient.setSelf_exclusion_form_id(quizId);
             pacientService.save(pacient);

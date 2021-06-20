@@ -28,7 +28,7 @@ public class DoctorService {
     }
 
     public Doctor getDoctorByAccountId(Integer id) {
-        if (doctorRepository.findByAccountId(id)!=null)
+        if (doctorRepository.findByAccountId(id) != null)
             return doctorRepository.findByAccountId(id);
         else
             throw new EmptyResultDataAccessException(id);

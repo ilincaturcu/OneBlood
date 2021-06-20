@@ -1,6 +1,5 @@
 package ac.OneBlood.Repository;
 
-import ac.OneBlood.Model.Credentials;
 import ac.OneBlood.Model.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

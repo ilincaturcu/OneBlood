@@ -67,7 +67,6 @@ public class DonationFormController {
     }
 
 
-
     //crearea unei resurse noi sau inlocuirea completa
     @PutMapping("/api/donationForm/{donor_code}")
     public ResponseEntity<?> addDonationForm(@RequestBody DonationForm donationForm, @PathVariable("donor_code") String donor_code) throws NotFoundException {
@@ -92,8 +91,6 @@ public class DonationFormController {
                 .build());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 
 
     @PutMapping("/api/donationForm/{donationFormId}/{id_predonare}/{id_postdonare}")

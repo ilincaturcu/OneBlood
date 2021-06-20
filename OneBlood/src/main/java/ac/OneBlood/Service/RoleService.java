@@ -1,6 +1,5 @@
 package ac.OneBlood.Service;
 
-import ac.OneBlood.Model.Doctor;
 import ac.OneBlood.Model.Role;
 import ac.OneBlood.Repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,15 +1,16 @@
 package ac.OneBlood.Config;
 
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @EnableWebMvc
-public class WebConfig{
+public class WebConfig {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -21,5 +22,11 @@ public class WebConfig{
                         .allowedMethods("PUT", "GET", "DELETE", "OPTIONS", "PATCH", "POST");
             }
         };
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+
+        return builder.build();
     }
 }

@@ -9,8 +9,6 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -36,6 +33,7 @@ public class AggregatorController {
     Aggregator aggregator;
     @Autowired
     DonationFormService donationFormService;
+
 
     //inregistrare ca doctor ar trebui sa poti avea avea acces doar daca esti logat ca doctor
     @PostMapping("/agreggator/cont/doctor")
@@ -97,7 +95,7 @@ public class AggregatorController {
         JSONObject pre, post, total = new JSONObject();
         ResponseEntity<String> predonare;
 
-        System.out.println("linia 97 din aggregator controller "  + dateIn);
+        System.out.println("linia 97 din aggregator controller " + dateIn);
         try {
             a = aggregator.getPostdonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
             JSONParser parser = new JSONParser();
@@ -115,7 +113,6 @@ public class AggregatorController {
         }
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
-
 
 
     //un get analize by donation form id
@@ -140,8 +137,6 @@ public class AggregatorController {
     }
 
 
-
-
     @RequestMapping(value = "/api/donationForm/tests/pre/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listTestsResultsPreDonationByDonationFormId(@PathVariable Integer id) {
         DonationForm donationForm = new DonationForm();
@@ -161,8 +156,6 @@ public class AggregatorController {
         }
         return new ResponseEntity<>(preDonation, HttpStatus.OK);
     }
-
-
 
 
     @RequestMapping(value = "/api/donationForm/tests/post/{id}", method = RequestMethod.GET)
@@ -210,12 +203,12 @@ public class AggregatorController {
         return new ResponseEntity<>(doctor_code, HttpStatus.OK);
     }
 
-//toti pacientii de astazi pentru un anumit doctor, cu personal info
+    //toti pacientii de astazi pentru un anumit doctor, cu personal info
     @RequestMapping(value = "/api/aggregator/appointments/pacient/doctor/{doctor_code}", method = RequestMethod.GET)
     public ResponseEntity<?> getAppointmentAndPacientDetailsForTodayByDoctorCode(@PathVariable Integer doctor_code) {
         ArrayList response = new ArrayList();
         try {
-            response = aggregator.getAppointmentAndPacientDetailsForTodayByDoctorCode(doctor_code);
+            response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCodeForToday(doctor_code);
         } catch (Exception e) {
             System.out.println("CATCH");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -224,38 +217,53 @@ public class AggregatorController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCode(@PathVariable Integer doctor_code) {
-        ArrayList response = new ArrayList();
-        try {
-            response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCode(doctor_code);
-        } catch (Exception e) {
-            System.out.println("CATCH");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}", method = RequestMethod.GET)
+//    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCode(@PathVariable Integer doctor_code) {
+//        ArrayList response = new ArrayList();
+//        try {
+//            response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCodeForToday(doctor_code);
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//        }
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
 
     @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}/{pageNo}/{pageSize}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCodePaginated(@PathVariable Integer doctor_code, @PathVariable Integer pageNo,
-                                                                                     @PathVariable Integer pageSize) {
+    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCodePaginated(@PathVariable Integer doctor_code, @PathVariable Integer pageNo, @PathVariable Integer pageSize) {
         ArrayList response = new ArrayList();
         List responsePaginated = null;
 
         try {
-            response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCode(doctor_code);
-            //if pageNo+1 * pageSize : response.size() =>>> response.subList(pageNo*pageSize,response.size())
-            responsePaginated =  response.subList(pageNo*pageSize,(pageNo+1)*pageSize );
+            response = aggregator.getAppointmentAndPacientDetailsHistory(doctor_code, pageNo, pageSize);
+            response.forEach(response1 -> System.out.println(response1));
+            //responsePaginated = response.subList(pageNo * pageSize, (pageNo + 1) * pageSize);
 
-//            for(int i=(pageNo) * (pageSize-1);i<((pageNo+1) * pageSize) -1;i++){
-//            responsePaginated.add(response.get(i));}
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ResponseEntity<>(responsePaginated, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(responsePaginated, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}/{pageNo}/{pageSize}/{filter}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCodePaginatedFiltered(@PathVariable Integer doctor_code, @PathVariable Integer pageNo, @PathVariable Integer pageSize, @PathVariable String filter) {
+        ArrayList response = new ArrayList();
+        List responsePaginated = null;
+
+        try {
+            response = aggregator.getAppointmentAndPacientDetailsHistoryFiltered(doctor_code, pageNo, pageSize, filter);
+            response.forEach(response1 -> System.out.println(response1));
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

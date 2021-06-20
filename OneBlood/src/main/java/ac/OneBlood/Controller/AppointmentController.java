@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,7 +35,6 @@ public class AppointmentController {
         System.out.println(appointmentService.listAllAppointments().toString());
         return new ResponseEntity<>(appointmentService.listAllAppointments(), HttpStatus.OK);
     }
-
 
 
     @CrossOrigin
@@ -74,7 +71,7 @@ public class AppointmentController {
     public ResponseEntity<?> getAppointmentByDoctorCode(@PathVariable Integer doctor_code) {
         List<Appointment> appointments;
         try {
-            appointments = appointmentService.getAppointmentByDoctorCode(doctor_code);
+            appointments = appointmentService.getAllAppointmentsByDoctorCode(doctor_code);
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -87,7 +84,7 @@ public class AppointmentController {
     public ResponseEntity<?> getNumberOfAppointmentByDoctorCode(@PathVariable Integer doctor_code) {
         List<Appointment> appointments;
         try {
-            appointments = appointmentService.getAppointmentByDoctorCode(doctor_code);
+            appointments = appointmentService.getAllAppointmentsByDoctorCode(doctor_code).stream().filter(appointment -> appointment.getAppointment_status() != "deleted").collect(Collectors.toList());
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -100,7 +97,7 @@ public class AppointmentController {
     public List<Appointment> getAppointmentByDoctorCodeAfterDate(@PathVariable Integer doctor_code, @PathVariable Long timestamp) {
         List<Appointment> appointments;
         try {
-            appointments = appointmentService.getAppointmentByDoctorCode(doctor_code)
+            appointments = appointmentService.getAllAppointmentsByDoctorCode(doctor_code)
                     .stream()
                     .filter(appointment -> appointment.getAppointment_date().getTime() > timestamp)
                     .collect(Collectors.toList());
@@ -109,46 +106,6 @@ public class AppointmentController {
         }
         return appointments;
     }
-
-//
-//    //toate programarile unui anumit doctor dintr-o anumita zi (data ca timestamp)
-//    @RequestMapping(value = "/api/appointment/doctor/{doctor_code}/day/{timestamp}", method = RequestMethod.GET)
-//    public ResponseEntity<?> getAppointmentByDoctorCodeAfterDate2(@PathVariable Integer doctor_code, @PathVariable Long timestamp) throws ParseException {
-//        List<Appointment> appointments = null;
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//
-//        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-//        Date date = new Date(timestamp * 1000);
-//        // Date date = sdf.parse(day);
-//        String formattedDate = sdf.format(date);
-//
-////        how to get hour from timestamp
-//        SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm");
-//        String formattedDate2 = sdf2.format(date);
-//        System.out.println(formattedDate2);
-//        Map<String, Integer> appointmentsAvailabe = appointmentService.initializeAppoinmentsForToday();
-//        try {
-//            //toate programarile doctorului din acea zi
-//            appointments = appointmentService.getAppointmentByDoctorCode(doctor_code)
-//                    .stream()
-//                    .filter(appointment -> sdf.format(appointment.getAppointment_date()).equals(formattedDate))
-//                    .collect(Collectors.toList());
-//
-//            appointments.stream().map(appointment -> {
-//                String key = sdf2.format(appointment.getAppointment_date());
-////                if (appointmentsAvailabe.containsKey(key))
-//                    appointmentsAvailabe.put(key, appointmentsAvailabe.get(key) + 1);
-//                return appointmentsAvailabe;
-//            }).collect(Collectors.toList());
-//
-//            System.out.println(appointmentsAvailabe.values());
-//
-//        } catch (EmptyResultDataAccessException e) {
-//            return new ResponseEntity<>(appointments, HttpStatus.BAD_REQUEST);
-//        }
-//        return new ResponseEntity<>(appointments, HttpStatus.OK);
-//    }
-//
 
 
     @CrossOrigin
@@ -159,17 +116,12 @@ public class AppointmentController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date appointmentDate = sdf.parse(dateIn);
-//        Date date = new Date(timestamp * 1000);
-        //Date date = new Date(dateIn);
-        //String appointmentDate = sdf.format(date);
-//        SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm:ss");
-//        String appointmentHour = sdf2.format(date);
 
         System.out.println(dateIn);
         System.out.println(hour);
         try {
             //toate programarile doctorului din acea zi, la acea ora
-            appointments = appointmentService.getAppointmentByDoctorCode(doctor_code).stream()
+            appointments = appointmentService.getAllAppointmentsByDoctorCode(doctor_code).stream()
                     .filter(appointment -> appointment.getAppointment_date().toString().contains(dateIn))
                     .filter(appointment -> appointment.getAppointment_hour().equals(hour))
                     .collect(Collectors.toList());
@@ -208,8 +160,6 @@ public class AppointmentController {
     @CrossOrigin
     @RequestMapping(value = "/api/appointments", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<?> addNewAppointment(@RequestBody Appointment appointment) {
-        //verifici daca exista, daca nu exista il creezi => 201 created
-        //daca exista ii faci update 200ok
         try {
             appointmentService.getAppointmentById(appointment.getAppointment_id());
         } catch (Exception e) {
@@ -244,13 +194,11 @@ public class AppointmentController {
                     .stream()
                     .filter(appointment -> appointment.getAppointment_status().equals("pending"))
                     .collect(Collectors.toList());
-            appointments.forEach(x-> System.out.println(x));
+            appointments.forEach(x -> System.out.println(x));
         } catch (EmptyResultDataAccessException | NotFoundException e) {
             return false;
         }
-        if (appointments.isEmpty())
-            return false;
-        else return true;
+        return !appointments.isEmpty();
     }
 
 
@@ -271,7 +219,7 @@ public class AppointmentController {
     public ResponseEntity<?> mail(@RequestBody String emailContent, @PathVariable String emailAddress) {
         try {
             mailService.sendEmail(emailContent, emailAddress);
-        } catch (Exception e ) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
         }

@@ -8,9 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Service
@@ -38,9 +36,26 @@ public class AppointmentService {
             throw new NotFoundException(donor_code);
     }
 
-    public List<Appointment> getAppointmentByDoctorCode(Integer doctor_code) {
-        if (appointmentRepository.findByDoctorCode(doctor_code) != null)
-            return appointmentRepository.findByDoctorCode(doctor_code);
+    public List<Appointment> getAppointmentByDoctorCode(Integer doctor_code, Integer index, Integer skip) {
+        Integer start = index * skip;
+        System.out.println("start "  + start + "skip " + skip);
+        if (appointmentRepository.findByDoctorCode(doctor_code, start, skip) != null)
+            return appointmentRepository.findByDoctorCode(doctor_code, start, skip);
+        else
+            throw new EmptyResultDataAccessException(doctor_code);
+    }
+
+    public List<Appointment> getAllAppointmentsByDoctorCode(Integer doctor_code) {
+        if (appointmentRepository.findAllByDoctorCode(doctor_code) != null)
+            return appointmentRepository.findAllByDoctorCode(doctor_code);
+        else
+            throw new EmptyResultDataAccessException(doctor_code);
+    }
+
+    public List<Appointment> getAppointmentByDoctorCodeFilterByDonorCode(Integer doctor_code, Integer index, Integer skip, String filter) {
+        System.out.println("filter " + filter );
+        if (appointmentRepository.findAllByDoctorCodeFiltered(doctor_code,index, skip, filter) != null)
+            return appointmentRepository.findAllByDoctorCodeFiltered(doctor_code,index, skip, filter);
         else
             throw new EmptyResultDataAccessException(doctor_code);
     }
@@ -48,6 +63,7 @@ public class AppointmentService {
     public void save(Appointment appointment) {
         appointmentRepository.saveAndFlush(appointment);
     }
+
     public void delete(Integer id) {
         appointmentRepository.deleteById(id);
     }
