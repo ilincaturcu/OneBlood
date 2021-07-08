@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -26,6 +27,9 @@ public class CredentialsController {
     private CredentialsRoleController credentialsRoleController;
     @Autowired
     private RoleController roleController;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @GetMapping("/")
     public String welcome() {
@@ -115,16 +119,23 @@ public class CredentialsController {
 
     @RequestMapping(value = "/api/credentials", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<?> addNewCredentials(@RequestBody Credentials credentials) {
-        //verifici daca exista, daca nu exista il creezi => 201 created
-        //daca exista ii faci update 200ok
+        Credentials newCredentials;
         try {
             credentialsService.get(credentials.getAccount_id());
         } catch (Exception e) {
-            credentialsService.save(credentials);
-            return new ResponseEntity<>(credentials.getAccount_id(), HttpStatus.CREATED);
+
+            newCredentials = Credentials.builder()
+                    .email(credentials.getEmail())
+                    .password(passwordEncoder.encode(credentials.getPassword()))
+                    .build();
+            credentialsService.save(newCredentials);
+            return new ResponseEntity<>(newCredentials.getAccount_id(), HttpStatus.CREATED);
         }
-        credentialsService.save(credentials);
-        return new ResponseEntity<>(credentials.getAccount_id(), HttpStatus.OK);
+        newCredentials = Credentials.builder()
+                .email(credentials.getEmail())
+                .password(passwordEncoder.encode(credentials.getPassword()))
+                .build();
+        return new ResponseEntity<>(newCredentials.getAccount_id(), HttpStatus.OK);
     }
 
 

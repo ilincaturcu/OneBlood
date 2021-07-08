@@ -38,7 +38,6 @@ public class AggregatorController {
     //inregistrare ca doctor ar trebui sa poti avea avea acces doar daca esti logat ca doctor
     @PostMapping("/agreggator/cont/doctor")
     public ResponseEntity<?> addAccountWithDoctorRole(@Valid @RequestBody DoctorRegister doctorRegister, BindingResult bindingResult, HttpServletRequest request) throws Exception {
-//        ResponseEntity<String> token = restTemplate.getForEntity("http://localhost:9090/authenticate", String.class);
         String token = request.getHeader("Authorization").substring(7);
         try {
             aggregator.postAccountWithDoctorRole(restTemplate, doctorRegister.getCredentials(), doctorRegister.getDoctor(), token);
@@ -53,7 +52,7 @@ public class AggregatorController {
     @PostMapping("/agreggator/cont/pacient")
     public ResponseEntity<?> addAccountWithPacientRole(@Valid @RequestBody PacientRegister pacientRegister, BindingResult bindingResult, HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity<Object> entityJWT = new HttpEntity<>(new AuthRequest("ilincafturcu@gmail.com", "Ilinca-113473"), headers);
+        HttpEntity<Object> entityJWT = new HttpEntity<>(new AuthRequest("ilinca.turcu555@gmail.com", "Ilinca-113473"), headers);
         String token = restTemplate.postForObject("http://localhost:9090/authenticate", entityJWT, String.class);
         try {
             aggregator.postAccountWithPacientRole(restTemplate, pacientRegister.getCredentials(), pacientRegister.getPacient(), pacientRegister.getPersonalInformation(), token);

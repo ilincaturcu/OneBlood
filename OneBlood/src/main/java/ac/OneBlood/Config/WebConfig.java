@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
-public class WebConfig {
+public class WebConfig{
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -26,7 +26,6 @@ public class WebConfig {
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
-
         return builder.build();
     }
 }

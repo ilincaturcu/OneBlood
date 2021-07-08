@@ -36,9 +36,7 @@ public class AppointmentController {
         return new ResponseEntity<>(appointmentService.listAllAppointments(), HttpStatus.OK);
     }
 
-
     @CrossOrigin
-    //intoarce cartea in functie de id, impreuna cu legaturile catre self, parinte si autori
     @RequestMapping(value = "/api/appointment/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getAppointmentById(@PathVariable Integer id) {
         Appointment appointment;
@@ -53,6 +51,7 @@ public class AppointmentController {
                 linkTo(methodOn(DoctorController.class).listDoctorById(appointment.getFk_doctor_code())).withRel("DoctorAppointment")),
                 HttpStatus.OK);
     }
+
 
     @CrossOrigin
     @RequestMapping(value = "/api/appointment/donor/{donor_code}", method = RequestMethod.GET)
