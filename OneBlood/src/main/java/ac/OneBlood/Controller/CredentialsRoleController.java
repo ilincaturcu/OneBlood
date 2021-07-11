@@ -32,8 +32,8 @@ public class CredentialsRoleController {
 
     @RequestMapping(value = "/api/credentialsrole", method = RequestMethod.PUT, headers = "Accept=application/json")
     public ResponseEntity<?> addCredentialsRoleByUserId(@RequestBody CredentialsRole credentialsRole) {
-        //verifici daca exista, daca nu exista il creezi => 201 created
-        //daca exista ii faci update 200ok
+        //verifica daca exista, daca nu exista il creezi => 201 created
+        //daca exista face update 200ok
         try {
             credentialsRoleService.getCredentialsRoleByUserId(credentialsRole.getFk_account_id());
         } catch (Exception e) {

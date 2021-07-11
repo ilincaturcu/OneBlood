@@ -20,6 +20,8 @@ public class CredentialsController {
     @Autowired
     CredentialsService credentialsService;
     @Autowired
+    PasswordEncoder passwordEncoder;
+    @Autowired
     private JwtUtil jwtUtil;
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -27,9 +29,6 @@ public class CredentialsController {
     private CredentialsRoleController credentialsRoleController;
     @Autowired
     private RoleController roleController;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
     @GetMapping("/")
     public String welcome() {
@@ -54,8 +53,8 @@ public class CredentialsController {
                     new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword())
             );
         } catch (Exception ex) {
-            System.out.println(authRequest.getUserName());
-            System.out.println(authRequest.getPassword());
+           // System.out.println(authRequest.getUserName());
+           // System.out.println(authRequest.getPassword());
             throw new Exception(ex.getMessage());
         }
         String jwt = jwtUtil.generateToken(authRequest.getUserName());
@@ -69,8 +68,8 @@ public class CredentialsController {
                     new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword())
             );
         } catch (Exception ex) {
-            System.out.println(authRequest.getUserName());
-            System.out.println(authRequest.getPassword());
+            //System.out.println(authRequest.getUserName());
+            //System.out.println(authRequest.getPassword());
             throw new Exception(ex.getMessage());
         }
 
@@ -80,28 +79,28 @@ public class CredentialsController {
         return new ResponseEntity<String>(role, HttpStatus.OK);
     }
 
+    //intoarce credentialele pe baza id-ului contului
     @RequestMapping(value = "/api/cont/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listContById(@PathVariable Integer id) {
         Credentials credentials = credentialsService.get(id);
-        System.out.println(credentials.toString());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
+    //intoarce emailul pe baza id-ului contului
     @RequestMapping(value = "/api/cont/email/accountId/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getEmailByAccountId(@PathVariable Integer id) {
         Credentials credentials = credentialsService.get(id);
-
         return new ResponseEntity<>(credentials.getEmail(), HttpStatus.OK);
     }
 
-
+    //intoarce credentialele pe baza emailului
     @RequestMapping(value = "/api/cont/email/{email}", method = RequestMethod.GET)
     public ResponseEntity<?> listContByEmail(@PathVariable String email) {
         Credentials credentials = credentialsService.getCredentialsByEmail(email);
         return new ResponseEntity<>(credentials, HttpStatus.OK);
     }
 
+    //valideaza daca emailul introdus are un cont asociat deja
     @RequestMapping(value = "/api/mail/existingAccount/{email}", method = RequestMethod.GET)
     public ResponseEntity<?> validateIfTheEmailHasAnAccount(@PathVariable String email) {
         Credentials credentials = null;
@@ -110,20 +109,18 @@ public class CredentialsController {
         } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.OK);
         }
-
         if (credentials != null)
             return new ResponseEntity<>(true, HttpStatus.OK);
         else return new ResponseEntity<>(false, HttpStatus.OK);
-
     }
 
+    //adaugarea unor credentiale noi
     @RequestMapping(value = "/api/credentials", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<?> addNewCredentials(@RequestBody Credentials credentials) {
         Credentials newCredentials;
         try {
             credentialsService.get(credentials.getAccount_id());
         } catch (Exception e) {
-
             newCredentials = Credentials.builder()
                     .email(credentials.getEmail())
                     .password(passwordEncoder.encode(credentials.getPassword()))
@@ -137,6 +134,4 @@ public class CredentialsController {
                 .build();
         return new ResponseEntity<>(newCredentials.getAccount_id(), HttpStatus.OK);
     }
-
-
 }

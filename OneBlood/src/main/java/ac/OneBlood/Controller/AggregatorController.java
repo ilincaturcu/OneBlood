@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:4200")
+
 public class AggregatorController {
     @Autowired
     RestTemplate restTemplate;
@@ -48,6 +48,7 @@ public class AggregatorController {
     }
 
 
+    //creare cont de pacient
     @CrossOrigin
     @PostMapping("/agreggator/cont/pacient")
     public ResponseEntity<?> addAccountWithPacientRole(@Valid @RequestBody PacientRegister pacientRegister, BindingResult bindingResult, HttpServletRequest request) throws Exception {
@@ -62,6 +63,7 @@ public class AggregatorController {
         return new ResponseEntity<>(pacientRegister, HttpStatus.CREATED);
     }
 
+    //adaugare rezultatete predonare
     @PostMapping("/agreggator/predonare")
     public ResponseEntity<?> addPredonareData(@Valid @RequestBody JSONObject jsonObject, BindingResult bindingResult, HttpServletRequest request) throws Exception {
         String predonareId;
@@ -73,6 +75,7 @@ public class AggregatorController {
         return new ResponseEntity<>(predonareId, HttpStatus.CREATED);
     }
 
+    //adaugare rezultatete postdonare
     @PostMapping("/agreggator/postdonare")
     public ResponseEntity<?> addPostdonareData(@Valid @RequestBody JSONObject jsonObject, BindingResult bindingResult, HttpServletRequest request) throws Exception {
         String postdonareId;
@@ -93,8 +96,6 @@ public class AggregatorController {
         String a, b;
         JSONObject pre, post, total = new JSONObject();
         ResponseEntity<String> predonare;
-
-        System.out.println("linia 97 din aggregator controller " + dateIn);
         try {
             a = aggregator.getPostdonareDataByDateAndDonorCode(restTemplate, dateIn, donor_code).getBody();
             JSONParser parser = new JSONParser();
@@ -104,7 +105,6 @@ public class AggregatorController {
             pre = (JSONObject) parser.parse(b);
 
             post.putAll(pre);
-            System.out.println(post);
 
         } catch (EmptyResultDataAccessException | ParseException | NullPointerException e) {
             System.out.println(e.getMessage());
@@ -125,17 +125,14 @@ public class AggregatorController {
             donationForm = donationFormService.getDonationFormById(id);
             date = new Date(donationForm.getCreated_at().getTime());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            //sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
             appointmentDate = sdf.format(date);
-            System.out.println("linia 97 din aggregator controller " + appointmentDate);
-            // getAnalize(donationForm.getFk_donor_code(), appointmentDate);
         } catch (NotFoundException | NullPointerException e) {
             return new ResponseEntity<>("Analizele nu sunt introduse in sistem", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(getAnalize(donationForm.getFk_donor_code(), appointmentDate), HttpStatus.OK);
     }
 
-
+    //afisare rezultate analize predonare dupa donation form
     @RequestMapping(value = "/api/donationForm/tests/pre/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listTestsResultsPreDonationByDonationFormId(@PathVariable Integer id) {
         DonationForm donationForm = new DonationForm();
@@ -156,7 +153,7 @@ public class AggregatorController {
         return new ResponseEntity<>(preDonation, HttpStatus.OK);
     }
 
-
+    //afisare rezultate analize postdonare dupa donation form
     @RequestMapping(value = "/api/donationForm/tests/post/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listTestsResultsPostDonationByDonationFormId(@PathVariable Integer id) {
         DonationForm donationForm = new DonationForm();
@@ -177,6 +174,7 @@ public class AggregatorController {
         return new ResponseEntity<>(postDonation, HttpStatus.OK);
     }
 
+    //intoarce codul donatorului pe baza credentialelor sale
     @RequestMapping(value = "/api/aggregator/pacient/donor_code", method = RequestMethod.POST)
     public ResponseEntity<?> getDonorCodeByCredentials(@RequestBody Credentials credentials, HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
@@ -189,7 +187,7 @@ public class AggregatorController {
         return new ResponseEntity<>(donor_code, HttpStatus.OK);
     }
 
-
+    //intoarce codul doctorului pe baza credentialelor sale
     @RequestMapping(value = "/api/aggregator/doctor/doctor_code", method = RequestMethod.POST)
     public ResponseEntity<?> getDoctorCodeByCredentials(@RequestBody Credentials credentials, HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
@@ -209,60 +207,37 @@ public class AggregatorController {
         try {
             response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCodeForToday(doctor_code);
         } catch (Exception e) {
-            System.out.println("CATCH");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-//    @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}", method = RequestMethod.GET)
-//    public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCode(@PathVariable Integer doctor_code) {
-//        ArrayList response = new ArrayList();
-//        try {
-//            response = aggregator.getAllAppointmentAndPacientDetailsByDoctorCodeForToday(doctor_code);
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-//        }
-//
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
-
-
+    //intoarce toate programarile si datele pacientilor programati, dupa codul doctorului, paginati
     @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}/{pageNo}/{pageSize}", method = RequestMethod.GET)
     public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCodePaginated(@PathVariable Integer doctor_code, @PathVariable Integer pageNo, @PathVariable Integer pageSize) {
         ArrayList response = new ArrayList();
         List responsePaginated = null;
-
         try {
             response = aggregator.getAppointmentAndPacientDetailsHistory(doctor_code, pageNo, pageSize);
-            response.forEach(response1 -> System.out.println(response1));
-            //responsePaginated = response.subList(pageNo * pageSize, (pageNo + 1) * pageSize);
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
+    //intoarce toate programarile si datele pacientilor programati, dupa codul doctorului, paginati SI FILTRATI
     @RequestMapping(value = "/api/aggregator/allAppointments/pacient/doctor/{doctor_code}/{pageNo}/{pageSize}/{filter}", method = RequestMethod.GET)
     public ResponseEntity<?> getAllAppointmentAndPacientDetailsByDoctorCodePaginatedFiltered(@PathVariable Integer doctor_code, @PathVariable Integer pageNo, @PathVariable Integer pageSize, @PathVariable String filter) {
         ArrayList response = new ArrayList();
         List responsePaginated = null;
-
         try {
             response = aggregator.getAppointmentAndPacientDetailsHistoryFiltered(doctor_code, pageNo, pageSize, filter);
-            response.forEach(response1 -> System.out.println(response1));
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

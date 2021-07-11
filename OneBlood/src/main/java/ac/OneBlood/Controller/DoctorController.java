@@ -23,7 +23,7 @@ public class DoctorController {
     public ResponseEntity<?> listDoctors() {
         return new ResponseEntity<>(doctorService.listAllDoctors(), HttpStatus.OK);
     }
-
+//intoarce informatiile despre doctor pe baza id ului sau, cu legaturi catre ceilalti doctori
     @RequestMapping(value = "/api/doctor/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listDoctorById(@PathVariable Integer id) {
         Doctor doctor;
@@ -37,10 +37,9 @@ public class DoctorController {
                 linkTo(methodOn(DoctorController.class).listDoctors()).withRel("doctors")), HttpStatus.OK);
     }
 
+    //creeaza o noua entitate de doctor
     @RequestMapping(value = "/api/doctor/{doctor_code}", method = RequestMethod.PUT, headers = "Accept=application/json")
     public ResponseEntity<?> addDoctor(@RequestBody Doctor doctor) {
-        //verifici daca exista, daca nu exista il creezi => 201 created
-        //daca exista ii faci update 200ok
         try {
             doctorService.getDoctorById(doctor.getDoctor_code());
         } catch (Exception e) {
@@ -51,6 +50,7 @@ public class DoctorController {
         return new ResponseEntity<>(doctor, HttpStatus.OK);
     }
 
+    //afiseaza doctului pe baza id ului
     @RequestMapping(value = "/api/doctor/doctor_code/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listDoctorCodeById(@PathVariable String id) {
         Doctor doctor;
@@ -61,5 +61,4 @@ public class DoctorController {
         }
         return new ResponseEntity<>(doctor.getDoctor_code(), HttpStatus.OK);
     }
-
 }

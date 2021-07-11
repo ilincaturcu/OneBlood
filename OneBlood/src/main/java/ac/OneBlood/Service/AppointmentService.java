@@ -38,7 +38,6 @@ public class AppointmentService {
 
     public List<Appointment> getAppointmentByDoctorCode(Integer doctor_code, Integer index, Integer skip) {
         Integer start = index * skip;
-        System.out.println("start "  + start + "skip " + skip);
         if (appointmentRepository.findByDoctorCode(doctor_code, start, skip) != null)
             return appointmentRepository.findByDoctorCode(doctor_code, start, skip);
         else
@@ -53,9 +52,8 @@ public class AppointmentService {
     }
 
     public List<Appointment> getAppointmentByDoctorCodeFilterByDonorCode(Integer doctor_code, Integer index, Integer skip, String filter) {
-        System.out.println("filter " + filter );
-        if (appointmentRepository.findAllByDoctorCodeFiltered(doctor_code,index, skip, filter) != null)
-            return appointmentRepository.findAllByDoctorCodeFiltered(doctor_code,index, skip, filter);
+        if (appointmentRepository.findAllByDoctorCodeFiltered(doctor_code, index, skip, filter) != null)
+            return appointmentRepository.findAllByDoctorCodeFiltered(doctor_code, index, skip, filter);
         else
             throw new EmptyResultDataAccessException(doctor_code);
     }

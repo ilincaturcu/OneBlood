@@ -35,14 +35,12 @@ public class PacientService {
             throw new NotFoundException(String.valueOf(cnp));
     }
 
-
     public Pacient getPacientByAccountId(Integer accountId) throws NotFoundException {
         if (pacientRepository.findPacientByAccountId(accountId) != null)
             return pacientRepository.findPacientByAccountId(accountId);
         else
             throw new NotFoundException(String.valueOf(accountId));
     }
-
 
     public void save(Pacient pacient) {
         System.out.println(pacient.getCNP());

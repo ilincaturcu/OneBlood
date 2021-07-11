@@ -13,9 +13,9 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
+    private final Credentials user;
     @Autowired
     CredentialsRoleService credentialsRoleService;
-    private final Credentials user;
 
     public CustomUserDetails(Credentials user) {
         this.user = user;

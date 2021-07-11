@@ -26,6 +26,7 @@ public class DonationFormController {
     @Autowired
     DonationFormService donationFormService;
 
+    //intoarce fisa de donare pe baza id-ului ei
     @RequestMapping(value = "/api/donationForm/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listDonationFormById(@PathVariable Integer id) {
         DonationForm donationForm;
@@ -39,7 +40,7 @@ public class DonationFormController {
                 linkTo(methodOn(PacientController.class).listPacientByDonorCode(donationForm.getFk_donor_code())).withRel("pacientByDonorCode")), HttpStatus.OK);
     }
 
-
+    //intoarce fise de donare pe baza codului dontorului si a datei
     @RequestMapping(value = "/api/donationForm/{donor_code}/{date}", method = RequestMethod.GET)
     public ResponseEntity<?> listDonationFormByDonorCodeAndDate(@PathVariable String donor_code, @PathVariable String date) throws ParseException {
         List<DonationForm> donationForms;
@@ -59,7 +60,6 @@ public class DonationFormController {
                         return false;
                     })
                     .collect(Collectors.toList());
-
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

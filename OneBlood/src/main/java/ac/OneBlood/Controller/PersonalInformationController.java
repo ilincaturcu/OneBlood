@@ -20,6 +20,7 @@ public class PersonalInformationController {
     @Autowired
     PersonalInformationService personalInformationService;
 
+    //intoarce informatiile despre un pacient, pe baza CNP-ului
     @RequestMapping(value = "/api/personalInformation/{CNP}", method = RequestMethod.GET)
     public ResponseEntity<?> listPersonalInfoByCNP(@PathVariable BigInteger CNP) throws Exception {
         PersonalInformation personalInformation;
@@ -32,7 +33,7 @@ public class PersonalInformationController {
                 linkTo(methodOn(PersonalInformationController.class).listPersonalInfoByCNP(CNP)).withSelfRel()), HttpStatus.OK);
     }
 
-
+//intoarce genul unui donator pe baza CNP-ului
     @RequestMapping(value = "/api/personalInformation/gender/{CNP}", method = RequestMethod.GET)
     public ResponseEntity<?> getGenderByCNP(@PathVariable BigInteger CNP) throws Exception {
         PersonalInformation personalInformation;

@@ -8,8 +8,6 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -38,6 +36,7 @@ public class Aggregator {
     @Autowired
     RestTemplate restTemplate;
 
+    //crearea unui cont de doctor (credentiale si informatii despre doctor)
     public void postAccountWithDoctorRole(RestTemplate restTemplate, Credentials credentials, Doctor doctor, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -52,17 +51,10 @@ public class Aggregator {
             restTemplate.put("http://localhost:9090/api/credentialsrole", entityCredentialsRole);
 
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-
-            System.out.println(httpClientOrServerExc.getMessage());
-            //           if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
-//                ResponseEntity<Carte> resultCarte = restTemplate.postForEntity("http://localhost:9090/api/carti", carte, Carte.class);
-//                System.out.println("carte");
-//                System.out.println(resultCarte.getStatusCode());
-//                System.out.println(resultCarte.getBody().toString());
         }
     }
 
-
+    //crearea unui cont de pacient (credentiale, entitate de pacient si informatii personale)
     public void postAccountWithPacientRole(RestTemplate restTemplate, Credentials credentials, Pacient pacient, PersonalInformation personalInformation, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -87,7 +79,6 @@ public class Aggregator {
         }
     }
 
-
     public String getDonorCodeByCredentials(Credentials credentials, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -103,7 +94,6 @@ public class Aggregator {
 
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
             if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
-                System.out.println(httpClientOrServerExc.getMessage());
             }
 
             return donorCode;
@@ -118,15 +108,12 @@ public class Aggregator {
         HttpEntity<Object> entity = new HttpEntity<>(headers);
         String doctor_code = null;
         Credentials credentials1 = null;
-
         try {
             credentials1 = new TestRestTemplate().exchange(
                     "http://localhost:9090/api/cont/email/" + credentials.getEmail(), HttpMethod.GET, entity, Credentials.class).getBody();
             doctor_code = doctorService.getDoctorByAccountId(credentials1.getAccount_id()).getDoctor_code().toString();
-            System.out.println(doctor_code);
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
             if (!HttpStatus.OK.equals(httpClientOrServerExc.getStatusCode())) {
-                System.out.println(httpClientOrServerExc.getMessage());
             }
 
             return doctor_code;
@@ -142,7 +129,6 @@ public class Aggregator {
         try {
             predonareId = restTemplate.postForEntity("http://localhost:7070/api/predonare", entity, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException httpClientOrServerExc) {
-            System.out.println(httpClientOrServerExc.getMessage());
             throw new Exception(httpClientOrServerExc.getMessage());
         }
         return predonareId.getBody();
@@ -222,10 +208,7 @@ public class Aggregator {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             sdf.setTimeZone(TimeZone.getDefault());
             String formattedDate = sdf.format(day);
-
-          //  appointmentList = appointmentList.stream().filter(appointment -> appointment.getAppointment_status() != "deleted").filter(appointment -> sdf.format(appointment.getAppointment_date()).equals(formattedDate)).collect(Collectors.toList());
-
-            appointmentList.forEach(appointment -> System.out.println(appointment.toString()));
+           // appointmentList.forEach(appointment -> System.out.println(appointment.toString()));
             for (Appointment appointment : appointmentList) {
                 finalJson = new JSONObject();
                 try {
@@ -251,7 +234,6 @@ public class Aggregator {
                 }
             }
         } catch (NullPointerException e) {
-            System.out.println("CATCH");
             return null;
         }
         return arrayList;
@@ -268,7 +250,6 @@ public class Aggregator {
         ObjectMapper mapper = new ObjectMapper();
         ArrayList arrayList = new ArrayList();
         try {
-
             Date day = new Date();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             sdf.setTimeZone(TimeZone.getDefault());
@@ -319,7 +300,7 @@ public class Aggregator {
         try {
             appointmentList = appointmentService.getAppointmentByDoctorCodeFilterByDonorCode(doctor_code, index, size, filterDonorCode);
 
-            appointmentList.forEach(appointment -> System.out.println(appointment));
+            //appointmentList.forEach(appointment -> System.out.println(appointment));
             for (Appointment appointment : appointmentList) {
                 finalJson = new JSONObject();
                 try {
@@ -345,7 +326,6 @@ public class Aggregator {
                 }
             }
         } catch (NullPointerException e) {
-            System.out.println("CATCH");
             return null;
         }
         return arrayList;

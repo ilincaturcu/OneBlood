@@ -24,6 +24,7 @@ public class PacientController {
     @Autowired
     PacientService pacientService;
 
+    //afiseaza toti pacientii
     @RequestMapping(value = "/api/pacients", method = RequestMethod.GET)
     public ResponseEntity<?> listPacients() {
         return new ResponseEntity<>(pacientService.listAllPacients(), HttpStatus.OK);
@@ -35,7 +36,7 @@ public class PacientController {
         Pacient mostRecent = Collections.max(pacients, Comparator.comparing(Pacient::getDonor_code));
         return new ResponseEntity<>(mostRecent.getDonor_code(), HttpStatus.OK);
     }
-
+//afiseaza pacientul pe baza codului sau de donator
     @RequestMapping(value = "/api/pacient/{donor_code}", method = RequestMethod.GET)
     public ResponseEntity<?> listPacientByDonorCode(@PathVariable String donor_code) {
         Pacient pacient;
