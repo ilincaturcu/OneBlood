@@ -93,12 +93,25 @@ public class DonationFormController {
     }
 
 
-    @PutMapping("/api/donationForm/{donationFormId}/{id_predonare}/{id_postdonare}")
-    public ResponseEntity<?> addTestsIdsAfterAnalize(@PathVariable Integer donationFormId, @PathVariable String id_predonare, @PathVariable String id_postdonare) throws NotFoundException {
+    @PutMapping("/api/donationForm/{donationFormId}/pre/{id_predonare}")
+    public ResponseEntity<?> addTestsIdsAfterAnalizePre(@PathVariable Integer donationFormId, @PathVariable String id_predonare) throws NotFoundException {
         DonationForm donationForm = new DonationForm();
         try {
             donationForm = donationFormService.getDonationFormById(donationFormId);
             donationForm.setId_analize_pre_donare(id_predonare);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        donationFormService.save(donationForm);
+        return new ResponseEntity<>(donationForm, HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/api/donationForm/{donationFormId}/post/{id_postdonare}")
+    public ResponseEntity<?> addTestsIdsAfterAnalizePost(@PathVariable Integer donationFormId, @PathVariable String id_postdonare) throws NotFoundException {
+        DonationForm donationForm = new DonationForm();
+        try {
+            donationForm = donationFormService.getDonationFormById(donationFormId);
+
             donationForm.setId_analize_post_donare(id_postdonare);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

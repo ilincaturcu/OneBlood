@@ -116,7 +116,7 @@ public class AggregatorController {
 
     //un get analize by donation form id
     //primeste donation form id si face un req catre endpointul din aggregator cu donor code si createdAt ca sa intoarca toatele analizele
-    @RequestMapping(value = "/api/donationForm/tests/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/donationForm/tests/allResults/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> listTestsResultsByDonationFormId(@PathVariable Integer id) {
         DonationForm donationForm = new DonationForm();
         Date date;
